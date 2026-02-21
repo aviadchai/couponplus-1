@@ -1,4 +1,4 @@
-import { getCoupons } from '../lib/notion';
+import { getCoupons } from '../lib/sheets';
 import Head from 'next/head';
 import { useState } from 'react';
 
