@@ -57,7 +57,6 @@ function CouponCard({ coupon }) {
             ? <img src={coupon.image} alt={coupon.name} className="card-img-photo" onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
             : null}
           <div className="card-img-bg" style={{ background: chain.bg, display: coupon.image ? 'none' : 'flex' }}>{chain.emoji}</div>
-          }
           <div className="card-badge-chain">
             <div className="chain-dot" style={{ background: chain.dot }}></div>
             {coupon.chain}
@@ -503,5 +502,3 @@ export async function getStaticProps() {
   const coupons = await getCoupons();
   return { props: { coupons }, revalidate: 3600 };
 }
-",
-      "path": "/mnt/user-data/outputs/couponplus-v2/pages/index.js
