@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['prod-files-secure.s3.us-west-2.amazonaws.com'],
+    domains: ['drive.google.com', 'lh3.googleusercontent.com', 'images.unsplash.com'],
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

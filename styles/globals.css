@@ -1,0 +1,18 @@
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { overflow-x: hidden; }
+body { font-family: 'Heebo', sans-serif; background: #FFF8F3; color: #1A1A1A; direction: rtl; }
+a { text-decoration: none; color: inherit; }
+button { font-family: 'Heebo', sans-serif; cursor: pointer; border: none; background: none; }
+
+:root {
+  --red:    #E8321A;
+  --red-dk: #C42810;
+  --red-lt: #FF5A3D;
+  --cream:  #FFF8F3;
+  --warm:   #FFF0E6;
+  --navy:   #1A1A2E;
+  --gray:   #F5F0EC;
+  --gray2:  #E8E0D8;
+  --muted:  #7A6E68;
+  --white:  #FFFFFF;
+}
