@@ -53,7 +53,7 @@ export default function CouponCard({ coupon }) {
   }
 
   return (
-    <Link href={`/coupon/${coupon.id}`} style={{ textDecoration: 'none', display: 'block', width: '100%' }}>
+    <Link href={`/coupon/${coupon.id}`} style={{ textDecoration: 'none', display: 'flex' }}>
       <div className={`cc-card${expired ? ' cc-expired' : ''}`}>
         <div className="cc-img">
           {coupon.image
@@ -97,8 +97,8 @@ export default function CouponCard({ coupon }) {
           display: flex;
           flex-direction: column;
           overflow: visible;
-          width: 100%;
-          height: 100%;
+          width: 250px;
+          min-height: 320px;
         }
         .cc-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,.14); border-color: #E8321A; }
         .cc-expired { opacity: .55; filter: grayscale(.7); pointer-events: none; }

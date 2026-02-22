@@ -229,6 +229,7 @@ export default function Home({ coupons }) {
         .arr:hover{background:#E8321A;color:#fff;border-color:#E8321A}
         .arr-r{right:-18px}.arr-l{left:-18px}
         .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+        .cards-grid .cc-card{width:100%}
         .no-results{text-align:center;color:#7A6E68;padding:40px;font-size:18px}
         .promo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
         .promo-card{border-radius:20px;overflow:hidden;position:relative;cursor:pointer;height:230px;transition:transform .25s,box-shadow .25s;display:block}
