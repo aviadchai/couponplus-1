@@ -1,6 +1,8 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
+import Layout from '../components/Layout';
+import CouponCard, { AdCard } from '../components/CouponCard';
 import { getCoupons } from '../lib/sheets';
 
 const CHAIN_COLORS = {
@@ -10,15 +12,8 @@ const CHAIN_COLORS = {
   'ויקטורי':    { dot: '#E53935', bg: 'linear-gradient(135deg,#ffebee,#ffcdd2)', emoji: '🥛' },
   'יינות ביתן': { dot: '#BA68C8', bg: 'linear-gradient(135deg,#f3e5f5,#e1bee7)', emoji: '🍷' },
   'חצי חינם':   { dot: '#FF9800', bg: 'linear-gradient(135deg,#fff3e0,#ffe0b2)', emoji: '🏷️' },
-  'סופר-פארם':  { dot: '#9C27B0', bg: 'linear-gradient(135deg,#f3e5f5,#e1bee7)', emoji: '💊' },
 };
 const DEFAULT_CHAIN = { dot: '#E8321A', bg: 'linear-gradient(135deg,#fff0e6,#ffddd0)', emoji: '🎫' };
-
-const BADGE_MAP = {
-  'חם':      { cls: 'hot', label: '🔥 חם' },
-  'חדש':     { cls: 'new', label: '✨ חדש' },
-  'מוגבל':   { cls: 'lim', label: '⚡ מוגבל' },
-};
 
 const CATEGORIES = [
   { key: 'all', label: '🛒 הכל', href: null },
@@ -33,132 +28,52 @@ const CATEGORIES = [
   { key: 'חיות מחמד', label: '🐾 חיות מחמד', href: '/category/חיות מחמד' },
 ];
 
-function CouponCard({ coupon }) {
-  const [revealed, setRevealed] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const chain = CHAIN_COLORS[coupon.chain] || DEFAULT_CHAIN;
-  const badge = BADGE_MAP[coupon.badge];
-  const masked = coupon.code ? coupon.code.slice(0, 3) + '•••' : '';
-  const expired = coupon.expired;
-
-  function handleCode(e) {
-    e.preventDefault(); e.stopPropagation();
-    if (expired) return;
-    if (!revealed) { setRevealed(true); return; }
-    navigator.clipboard.writeText(coupon.code).catch(() => {});
-    setCopied(true);
-    setTimeout(() => { setCopied(false); setRevealed(false); }, 2000);
-  }
-
+function ScrollRow({ coupons }) {
+  const ref = useRef(null);
+  const scroll = dir => ref.current?.scrollBy({ left: dir * 300, behavior: 'smooth' });
   return (
-    <Link href={`/coupon/${coupon.id}`} style={{ textDecoration: 'none' }}>
-      <div className={`coupon-card${expired ? ' expired' : ''}`}>
-        <div className="card-img">
-          {coupon.image ? <img src={coupon.image} alt={coupon.name} className="card-img-photo" /> : <div className="card-img-bg" style={{ background: chain.bg }}>{chain.emoji}</div>}
-          <div className="card-badge-chain"><div className="chain-dot" style={{ background: chain.dot }}></div>{coupon.chain}</div>
-          {expired
-            ? <div className="card-badge-status exp">⛔ פג תוקף</div>
-            : badge && <div className={`card-badge-status ${badge.cls}`}>{badge.label}</div>
-          }
-          {coupon.discount && <div className="card-discount-badge">{coupon.discount}</div>}
-        </div>
-        <div className="card-body">
-          <div className="card-title">{coupon.name}</div>
-          {coupon.expiry && <div className="card-meta">📅 עד {coupon.expiry}</div>}
-        </div>
-        <div className="card-footer">
-          <button className="btn-details" style={expired ? {background:'#aaa'} : {}}>לפרטים ולקוד →</button>
-          {coupon.code && !expired && <button className={`btn-code ${revealed ? 'revealed' : ''} ${copied ? 'copied' : ''}`} onClick={handleCode}>{copied ? '✅ הועתק!' : revealed ? coupon.code : masked}</button>}
-        </div>
+    <div className="scroll-container">
+      <button className="arr arr-r" onClick={() => scroll(-1)}>‹</button>
+      <div className="scroll-row" ref={ref}>
+        {coupons.map((c, i) => (
+          <div key={c.id} style={{ flexShrink: 0 }}>
+            <CouponCard coupon={c} />
+          </div>
+        ))}
+        <div style={{ flexShrink: 0 }}><AdCard /></div>
       </div>
-    </Link>
-  );
-}
-
-function AdCard() {
-  return (
-    <div className="coupon-card ad-card">
-      <div className="ad-card-label">פרסומת</div>
-      <div className="ad-card-inner">
-        <div className="ad-card-icon">🎯</div>
-        <div className="ad-card-text">Google Ads</div>
-        <div className="ad-card-sub">300×250</div>
-      </div>
+      <button className="arr arr-l" onClick={() => scroll(1)}>›</button>
     </div>
   );
 }
 
 export default function Home({ coupons }) {
   const [search, setSearch] = useState('');
-  const [activeCat, setActiveCat] = useState('all');
-  const hotRef = useRef(null);
-  const pharmRef = useRef(null);
-
-  const filtered = coupons.filter(c => {
-    const matchSearch = !search || c.name.includes(search) || c.chain.includes(search) || c.code.includes(search);
-    const matchCat = activeCat === 'all' ? true
-      : activeCat === 'hot' ? c.badge === 'חם'
-      : c.category === activeCat;
-    return matchSearch && matchCat;
-  });
-
-  const hotCoupons = coupons.filter(c => c.badge === 'חם').slice(0, 8);
-  const pharmCoupons = coupons.filter(c => c.category === 'פארם ובריאות' || c.category === 'טיפוח וקוסמטיקה').slice(0, 8);
-  const chains = [...new Set(coupons.map(c => c.chain))];
-
-  function scrollRow(ref, dir) {
-    if (ref.current) ref.current.scrollBy({ left: dir * 300, behavior: 'smooth' });
-  }
+  const activeCoupons = coupons.filter(c => !c.expired);
+  const hotCoupons = activeCoupons.filter(c => c.badge === 'חם');
+  const pharmCoupons = activeCoupons.filter(c => ['פארם ובריאות','טיפוח וקוסמטיקה'].includes(c.category));
+  const chains = [...new Set(activeCoupons.map(c => c.chain))];
+  const searchResults = search ? coupons.filter(c => c.name.includes(search) || c.chain.includes(search) || (c.code && c.code.includes(search))) : [];
 
   return (
-    <>
+    <Layout>
       <Head>
         <title>קופון+ | כל הקופונים והמבצעים במקום אחד</title>
         <meta name="description" content="אלפי קופונים ומבצעים מכל הרשתות הגדולות" />
-        <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet" />
       </Head>
 
-      {/* TOP BAR */}
-      <div className="topbar">
-        <span>🔥 מבצעים חמים</span>
-        <span className="sep">|</span>
-        <span>נוספו <b>{coupons.length} קופונים</b> פעילים</span>
-        <span className="sep">|</span>
-        <span>מתעדכן מדי יום</span>
-      </div>
-
-      {/* HEADER */}
-      <header>
-        <div className="header-inner">
-          <Link href="/" className="logo">קופון<span>+</span></Link>
-          <div className="search-wrap">
-            <input
-              type="text"
-              placeholder="חפש מבצע, מוצר, או רשת..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-            <span className="search-ico">🔍</span>
-          </div>
-          <nav className="main-nav">
-            <Link href="/" className="nav-link active">קופונים</Link>
-            <Link href="/deals" className="nav-link">מבצעים</Link>
-            <Link href="/pharm" className="nav-link">פארם</Link>
-            <Link href="/contact" className="nav-link">צור קשר</Link>
-          </nav>
-        </div>
-      </header>
-
-      {/* HERO */}
       <section className="hero">
         <div className="hero-inner">
           <div className="hero-copy">
-            <div className="hero-badge">✂ <span>מתעדכן כל שעה</span> — קופונים אמיתיים בלבד</div>
-            <h1>חסכו יותר<br />בכל <em>קנייה בסופר</em></h1>
-            <p className="hero-sub">אלפי מבצעים וקופונים מכל הרשתות הגדולות — במקום אחד, מתעדכנים מדי יום.</p>
-            <a href="#coupons" className="hero-cta" onClick={e => { e.preventDefault(); document.getElementById('coupons')?.scrollIntoView({ behavior: 'smooth' }); }}>🔥 לכל המבצעים החמים</a>
+            <div className="hero-badge">✂ <span>מתעדכן כל יום</span></div>
+            <h1>חסכו יותר<br />בכל <em>קנייה</em></h1>
+            <p className="hero-sub">אלפי מבצעים וקופונים מכל הרשתות הגדולות.</p>
+            <div className="hero-search">
+              <input type="text" placeholder="חפש קופון, מוצר, או רשת..." value={search} onChange={e => setSearch(e.target.value)} />
+              <span className="hs-ico">🔍</span>
+            </div>
             <div className="hero-stats">
-              <div className="hstat"><strong>{coupons.length}+</strong><span>מבצעים פעילים</span></div>
+              <div className="hstat"><strong>{coupons.length}</strong><span>מבצעים</span></div>
               <div className="hstat"><strong>{chains.length}</strong><span>רשתות</span></div>
               <div className="hstat"><strong>{hotCoupons.length}</strong><span>חמים עכשיו</span></div>
             </div>
@@ -166,384 +81,199 @@ export default function Home({ coupons }) {
           <div className="hero-chains">
             <div className="hc-title">בחר רשת</div>
             <div className="hc-grid">
-              {chains.slice(0, 6).map((chain, i) => (
-                <div key={chain} className={`hc-btn hc-${i}`} onClick={() => setActiveCat(chain)}>
-                  <span className="hc-btn-name">{chain}</span>
-                  <span className="hc-btn-count">{coupons.filter(c => c.chain === chain).length} מבצעים</span>
-                </div>
-              ))}
+              {chains.slice(0, 6).map((chain, i) => {
+                const ch = CHAIN_COLORS[chain] || DEFAULT_CHAIN;
+                return (
+                  <Link href={`/category/${chain}`} key={chain} className={`hc-btn hc-${i}`}>
+                    <span>{ch.emoji}</span>
+                    <span className="hc-name">{chain}</span>
+                    <span className="hc-count">{activeCoupons.filter(c => c.chain === chain).length}</span>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </div>
       </section>
 
-      {/* CHIPS */}
-      <div className="chips-section" id="coupons">
-        <div className="chips-row">
-          {CATEGORIES.map(cat => (
-            cat.href ? (
-              <Link key={cat.key} href={cat.href} className={`chip ${activeCat === cat.key ? 'on' : ''}`}>
-                {cat.label}
-                <span className="chip-num">
-                  {cat.key === 'hot' ? coupons.filter(c => c.badge === 'חם').length
-                    : coupons.filter(c => c.category === cat.key).length}
-                </span>
-              </Link>
-            ) : (
-              <div key={cat.key} className={`chip ${activeCat === cat.key ? 'on' : ''}`} onClick={() => setActiveCat(cat.key)}>
-                {cat.label}
-                <span className="chip-num">{coupons.length}</span>
-              </div>
-            )
-          ))}
-        </div>
-      </div>
-
-      {/* SEARCH RESULTS */}
-      {(search || activeCat !== 'all') && (
+      {search && (
         <div className="section">
           <div className="section-head">
-            <div className="section-title"><span className="dot"></span>
-              {search ? `תוצאות עבור "${search}"` : CATEGORIES.find(c => c.key === activeCat)?.label}
-            </div>
+            <div className="section-title"><span className="dot" />תוצאות עבור &ldquo;{search}&rdquo;</div>
           </div>
-          <div className="cards-grid">
-            {filtered.map((c, i) => (
-              <>
-                <CouponCard key={c.id} coupon={c} />
-                {(i + 1) % 4 === 0 && <AdCard key={`ad-${i}`} />}
-              </>
+          {searchResults.length === 0
+            ? <p className="no-results">לא נמצאו קופונים</p>
+            : <div className="cards-grid">{searchResults.map(c => <CouponCard key={c.id} coupon={c} />)}</div>
+          }
+        </div>
+      )}
+
+      {!search && (
+        <div className="chips-section" id="coupons">
+          <div className="chips-row">
+            {CATEGORIES.map(cat => (
+              cat.href
+                ? <Link key={cat.key} href={cat.href} className="chip">
+                    {cat.label}<span className="chip-num">{cat.key === 'hot' ? hotCoupons.length : coupons.filter(c => c.category === cat.key).length}</span>
+                  </Link>
+                : <div key={cat.key} className="chip on">{cat.label}<span className="chip-num">{coupons.length}</span></div>
             ))}
-            {filtered.length === 0 && <p className="no-results">לא נמצאו קופונים</p>}
           </div>
         </div>
       )}
 
-      {/* HOT NOW */}
-      {!search && activeCat === 'all' && (
-        <>
-          <div className="section">
-            <div className="section-head">
-              <div className="section-title"><span className="dot"></span>🔥 חמים עכשיו</div>
-              <Link href="/deals" className="see-all">לכל המבצעים החמים →</Link>
-            </div>
-            <div className="scroll-container">
-              <button className="scroll-arrow arr-right" onClick={() => scrollRow(hotRef, -1)}>‹</button>
-              <div className="scroll-row" ref={hotRef}>
-                {(hotCoupons.length ? hotCoupons : coupons.slice(0, 6)).map((c, i) => (
-                  <React.Fragment key={c.id}>
-                    <CouponCard coupon={c} />
-                    {i === 2 && <AdCard key="ad-hot" />}
-                  </React.Fragment>
-                ))}
-                {(hotCoupons.length ? hotCoupons : coupons.slice(0, 6)).length <= 2 && <AdCard key="ad-hot-fallback" />}
-              </div>
-              <button className="scroll-arrow arr-left" onClick={() => scrollRow(hotRef, 1)}>›</button>
-            </div>
+      {!search && (
+        <div className="section">
+          <div className="section-head">
+            <div className="section-title"><span className="dot" />🔥 חמים עכשיו</div>
+            <Link href="/deals" className="see-all">לכל המבצעים →</Link>
           </div>
-
-          {/* AD STRIP */}
-          <div className="ad-strip-wrap">
-            <div className="ad-strip">
-              <div className="ad-label">פרסומת</div>
-              <div className="ad-content">
-                <div className="ad-icon">🎯</div>
-                <div className="ad-text"><b>Google Ads — 728×90</b> | Leaderboard Banner</div>
-              </div>
-            </div>
-          </div>
-
-          {/* PROMO GRID */}
-          <div className="section">
-            <div className="section-head">
-              <div className="section-title"><span className="dot"></span>🏪 מבצעי שבוע לפי רשת</div>
-              <Link href="/deals" className="see-all">כל הרשתות →</Link>
-            </div>
-            <div className="promo-grid">
-              {chains.slice(0, 3).map((chain, i) => {
-                const ch = CHAIN_COLORS[chain] || DEFAULT_CHAIN;
-                const chainCoupons = coupons.filter(c => c.chain === chain);
-                return (
-                  <div key={chain} className="promo-card" onClick={() => setActiveCat(chain)}>
-                    <div className="promo-card-bg" style={{ background: ch.bg }}>{ch.emoji}</div>
-                    <div className="promo-card-overlay"></div>
-                    <div className="promo-card-content">
-                      <div className="promo-chain">{chain}</div>
-                      <div className="promo-title">מבצעי השבוע</div>
-                      <div className="promo-discount">לפרטים נוספים →</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* PHARM */}
-          {pharmCoupons.length > 0 && (
-            <div className="pharm-section">
-              <div className="section">
-                <div className="section-head">
-                  <div className="section-title"><span className="dot"></span>💊 פארם וקוסמטיקה</div>
-                  <Link href="/pharm" className="see-all">לכל מבצעי הפארם →</Link>
-                </div>
-                <div className="scroll-container">
-                  <div className="scroll-row" ref={pharmRef}>
-                    {pharmCoupons.map((c, i) => (
-                      <>
-                        <CouponCard key={c.id} coupon={c} />
-                        {i === 3 && <AdCard key="ad-pharm" />}
-                      </>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* AD BEFORE FOOTER */}
-          <div className="ad-strip-wrap">
-            <div className="ad-strip">
-              <div className="ad-label">פרסומת</div>
-              <div className="ad-content">
-                <div className="ad-icon">🎯</div>
-                <div className="ad-text"><b>Google Ads — 728×90</b> | Leaderboard Banner</div>
-              </div>
-            </div>
-          </div>
-        </>
+          <ScrollRow coupons={hotCoupons.length ? hotCoupons : activeCoupons.slice(0, 6)} />
+        </div>
       )}
 
-      {/* FOOTER */}
-      <footer>
-        <div className="footer-inner">
-          <div className="footer-top">
-            <div className="footer-brand">
-              <div className="footer-logo">קופון<span>+</span></div>
-              <p>כל הקופונים והמבצעים של הרשתות הגדולות במקום אחד. מתעדכנים מדי יום.</p>
-            </div>
-            <div className="footer-col">
-              <h5>קטגוריות</h5>
-              <Link href="/category/סופרמרקט">🛍️ סופרמרקט</Link>
-              <Link href="/category/פארם ובריאות">💊 פארם ובריאות</Link>
-              <Link href="/category/טיפוח וקוסמטיקה">💄 טיפוח</Link>
-              <Link href="/category/אלקטרוניקה">📱 אלקטרוניקה</Link>
-              <Link href="/category/חיות מחמד">🐾 חיות מחמד</Link>
-            </div>
-            <div className="footer-col">
-              <h5>האתר</h5>
-              <Link href="/contact">צור קשר</Link>
-              <Link href="/privacy">מדיניות פרטיות</Link>
-              <Link href="/terms">תנאי שימוש</Link>
-            </div>
+      {!search && (
+        <div className="ad-strip-wrap">
+          <div className="ad-strip"><div className="ad-label">פרסומת</div><div className="ad-placeholder">Google Ads — 728×90</div></div>
+        </div>
+      )}
+
+      {!search && chains.length > 0 && (
+        <div className="section">
+          <div className="section-head">
+            <div className="section-title"><span className="dot" />🏪 מבצעי שבוע לפי רשת</div>
+            <Link href="/deals" className="see-all">כל הרשתות →</Link>
           </div>
-          <div className="footer-bottom">
-            <span>© 2025 קופון+ — כל הזכויות שמורות</span>
-            <div className="footer-links">
-              <Link href="/privacy">פרטיות</Link>
-              <Link href="/terms">תנאים</Link>
-              <Link href="/contact">צור קשר</Link>
-            </div>
+          <div className="promo-grid">
+            {chains.slice(0, 3).map((chain, i) => {
+              const ch = CHAIN_COLORS[chain] || DEFAULT_CHAIN;
+              return (
+                <Link href={`/category/${chain}`} key={chain} className="promo-card">
+                  <div className="promo-bg" style={{ background: ch.bg }}>{ch.emoji}</div>
+                  <div className="promo-overlay" />
+                  <div className="promo-content">
+                    <div className="promo-chain">{chain}</div>
+                    <div className="promo-title">מבצעי השבוע</div>
+                    <div className="promo-btn">לפרטים נוספים →</div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
-      </footer>
+      )}
 
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Rubik:wght@400;500;700;900&display=swap');
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { overflow-x: hidden; }
-        body { font-family: 'Heebo', sans-serif; background: #FFF8F3; color: #1A1A1A; direction: rtl; }
-        a { text-decoration: none; color: inherit; }
-        button { font-family: 'Heebo', sans-serif; cursor: pointer; border: none; background: none; }
-        :root {
-          --red: #E8321A; --red-dk: #C42810; --red-lt: #FF5A3D;
-          --cream: #FFF8F3; --warm: #FFF0E6; --navy: #1A1A2E;
-          --gray: #F5F0EC; --gray2: #E8E0D8; --muted: #7A6E68; --white: #FFFFFF;
-        }
-        .topbar { background: var(--navy); padding: 8px 24px; display: flex; align-items: center; justify-content: center; gap: 24px; font-size: 12px; color: rgba(255,255,255,.6); }
-        .topbar b { color: rgba(255,255,255,.9); }
-        .sep { opacity: .3; }
-        header { background: var(--white); border-bottom: 1px solid var(--gray2); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
-        .header-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; height: 68px; display: flex; align-items: center; gap: 24px; }
-        .logo { font-family: 'Rubik', sans-serif; font-size: 26px; font-weight: 900; color: var(--navy); flex-shrink: 0; }
-        .logo span { color: var(--red); }
-        .search-wrap { flex: 1; max-width: 440px; position: relative; }
-        .search-wrap input { width: 100%; background: var(--gray); border: 2px solid transparent; border-radius: 50px; padding: 11px 20px 11px 48px; font-family: 'Heebo', sans-serif; font-size: 14px; color: #1A1A1A; outline: none; transition: all .2s; }
-        .search-wrap input:focus { border-color: var(--red); background: var(--white); box-shadow: 0 0 0 4px rgba(232,50,26,.08); }
-        .search-wrap input::placeholder { color: var(--muted); }
-        .search-ico { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 16px; opacity: .4; }
-        .main-nav { display: flex; gap: 4px; margin-right: auto; }
-        .nav-link { padding: 8px 16px; border-radius: 10px; font-size: 14px; font-weight: 600; color: var(--muted); transition: all .18s; white-space: nowrap; }
-        .nav-link:hover { background: var(--gray); color: var(--navy); }
-        .nav-link.active { background: var(--red); color: var(--white); }
-        .hero { background: linear-gradient(135deg, #1A1A2E 0%, #2D1B4E 50%, #1A1A2E 100%); padding: 56px 24px 72px; position: relative; overflow: hidden; }
-        .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 50%, rgba(232,50,26,.25) 0%, transparent 55%), radial-gradient(ellipse at 80% 20%, rgba(255,90,61,.08) 0%, transparent 50%); }
-        .hero-inner { max-width: 1280px; margin: 0 auto; position: relative; display: flex; align-items: center; gap: 60px; }
-        .hero-copy { flex: 1; }
-        .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 50px; padding: 6px 18px; font-size: 12px; font-weight: 700; color: rgba(255,255,255,.7); margin-bottom: 20px; letter-spacing: .5px; }
-        .hero-badge span { color: var(--red-lt); }
-        .hero h1 { font-family: 'Rubik', sans-serif; font-size: 52px; font-weight: 900; color: var(--white); line-height: 1.1; margin-bottom: 16px; }
-        .hero h1 em { color: var(--red-lt); font-style: normal; }
-        .hero-sub { font-size: 17px; color: rgba(255,255,255,.5); line-height: 1.7; max-width: 420px; margin-bottom: 36px; }
-        .hero-cta { display: inline-flex; align-items: center; gap: 10px; background: var(--red); color: var(--white); border-radius: 50px; padding: 15px 32px; font-size: 16px; font-weight: 800; box-shadow: 0 8px 24px rgba(232,50,26,.4); transition: all .2s; font-family: 'Heebo', sans-serif; }
-        .hero-cta:hover { background: var(--red-lt); transform: translateY(-2px); }
-        .hero-stats { display: flex; gap: 40px; margin-top: 36px; }
-        .hstat strong { font-family: 'Rubik', sans-serif; font-size: 32px; font-weight: 900; color: var(--white); display: block; }
-        .hstat span { font-size: 12px; color: rgba(255,255,255,.38); }
-        .hero-chains { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 20px; padding: 20px; min-width: 280px; flex-shrink: 0; backdrop-filter: blur(10px); }
-        .hc-title { font-size: 10px; font-weight: 800; color: rgba(255,255,255,.3); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 14px; }
-        .hc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .hc-btn { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 12px 10px; text-align: center; transition: all .2s; cursor: pointer; }
-        .hc-0:hover { background: #F5A623; border-color: #F5A623; }
-        .hc-1:hover { background: #2DB86A; border-color: #2DB86A; }
-        .hc-2:hover { background: #1565C0; border-color: #1565C0; }
-        .hc-3:hover { background: #E53935; border-color: #E53935; }
-        .hc-4:hover { background: #7B1FA2; border-color: #7B1FA2; }
-        .hc-5:hover { background: #FF6F00; border-color: #FF6F00; }
-        .hc-btn:hover { transform: scale(1.03); }
-        .hc-btn-name { font-size: 13px; font-weight: 700; color: var(--white); display: block; }
-        .hc-btn-count { font-size: 10px; color: rgba(255,255,255,.35); margin-top: 2px; display: block; }
-        .chips-section { padding: 24px 24px 0; max-width: 1280px; margin: 0 auto; }
-        .chips-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-        .chips-row::-webkit-scrollbar { display: none; }
-        .chip { flex-shrink: 0; display: flex; align-items: center; gap: 8px; background: var(--white); border: 2px solid var(--gray2); border-radius: 50px; padding: 8px 18px; font-size: 13.5px; font-weight: 700; color: var(--navy); transition: all .18s; cursor: pointer; white-space: nowrap; }
-        .chip:hover, .chip.on { background: var(--navy); border-color: var(--navy); color: var(--white); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(26,26,46,.2); }
-        .chip-num { background: var(--gray); color: var(--muted); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 50px; transition: all .18s; }
-        .chip.on .chip-num, .chip:hover .chip-num { background: rgba(255,255,255,.15); color: rgba(255,255,255,.7); }
-        .section { padding: 40px 24px; max-width: 1280px; margin: 0 auto; }
-        .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-        .section-title { font-family: 'Rubik', sans-serif; font-size: 22px; font-weight: 900; color: var(--navy); display: flex; align-items: center; gap: 10px; }
-        .section-title .dot { width: 8px; height: 28px; background: var(--red); border-radius: 4px; display: block; }
-        .see-all { font-size: 13px; font-weight: 700; color: var(--red); display: flex; align-items: center; gap: 4px; transition: gap .18s; }
-        .see-all:hover { gap: 8px; }
-        .scroll-container { position: relative; overflow: visible; }
-        .scroll-row { display: flex; gap: 16px; overflow-x: auto; overflow-y: visible; padding: 12px 4px; scrollbar-width: none; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
-        .scroll-row::-webkit-scrollbar { display: none; }
-        .coupon-card { background: var(--white); border-radius: 20px; overflow: visible; border: 2px solid var(--gray2); box-shadow: 0 2px 12px rgba(0,0,0,.06); transition: transform .25s, box-shadow .25s, border-color .25s; cursor: pointer; flex-shrink: 0; width: 260px; scroll-snap-align: start; display: flex; flex-direction: column; }
-        .coupon-card .card-img { border-radius: 18px 18px 0 0; overflow: hidden; }
-        .coupon-card .card-footer { border-radius: 0 0 18px 18px; overflow: hidden; }
-        .coupon-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,.16); border-color: var(--red); }
-        .card-img { width: 100%; height: 160px; position: relative; flex-shrink: 0; }
-        .card-img-bg { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 60px; transition: transform .4s; }
-        .card-img-photo { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
-        .coupon-card:hover .card-img-bg, .coupon-card:hover .card-img-photo { transform: scale(1.08); }
-        .card-badge-chain { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,.65); backdrop-filter: blur(6px); color: white; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 5px; z-index: 2; }
-        .chain-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-        .card-badge-status { position: absolute; top: 12px; left: 12px; font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; z-index: 2; }
-        .hot { background: #FFE8E5; color: #D42B0F; }
-        .new { background: #E5FFE8; color: #0F8A1E; }
-        .lim { background: #FFF5E5; color: #B06000; }
-        .card-discount-badge { position: absolute; bottom: 12px; right: 12px; background: var(--red); color: white; font-family: 'Rubik', sans-serif; font-size: 20px; font-weight: 900; padding: 6px 14px; border-radius: 12px; box-shadow: 0 4px 12px rgba(232,50,26,.4); z-index: 2; }
-        .card-body { padding: 16px; flex: 1; }
-        .card-title { font-size: 15px; font-weight: 700; color: var(--navy); line-height: 1.4; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .card-meta { font-size: 11.5px; color: var(--muted); }
-        .card-footer { padding: 12px 16px; border-top: 1px solid var(--gray); display: flex; gap: 10px; background: var(--white); }
-        .btn-details { flex: 1; background: var(--navy); color: var(--white); border-radius: 10px; padding: 10px; font-size: 13px; font-weight: 800; text-align: center; transition: background .18s; }
-        .btn-details:hover { background: var(--red); }
-        .btn-code { background: var(--gray); color: var(--navy); border-radius: 10px; padding: 10px 14px; font-size: 12px; font-weight: 800; font-family: 'Rubik', sans-serif; letter-spacing: 1px; transition: all .18s; white-space: nowrap; }
-        .btn-code.revealed { background: #FFF3E0; color: #E65100; letter-spacing: 2px; }
-        .btn-code.copied { background: #E8F5E9; color: #2E7D32; letter-spacing: normal; }
-        .btn-code:hover { background: #e0e0e0; }
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
-        .no-results { text-align: center; color: var(--muted); padding: 40px; font-size: 18px; }
-        .ad-card { background: #F0F4FF; border: 2px dashed #C0CFEA !important; cursor: default; justify-content: center; align-items: center; min-height: 340px; position: relative; }
-        .ad-card:hover { transform: none !important; box-shadow: none !important; border-color: #C0CFEA !important; }
-        .ad-card-label { position: absolute; top: 12px; right: 12px; background: #C0CFEA; color: #536070; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; padding: 2px 8px; border-radius: 4px; }
-        .ad-card-inner { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 20px; }
-        .ad-card-icon { font-size: 36px; opacity: .3; }
-        .ad-card-text { font-size: 14px; font-weight: 700; color: #536070; }
-        .ad-card-sub { font-size: 11px; color: #96AABF; }
-        .ad-strip-wrap { padding: 0 24px; max-width: 1280px; margin: 0 auto 8px; }
-        .ad-strip { background: #F0F4FF; border: 1.5px dashed #C0CFEA; border-radius: 16px; padding: 16px 24px; text-align: center; position: relative; }
-        .ad-label { position: absolute; top: 8px; left: 14px; background: #C0CFEA; color: #536070; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; padding: 2px 7px; border-radius: 4px; }
-        .ad-content { display: flex; align-items: center; justify-content: center; gap: 16px; padding-top: 6px; }
-        .ad-icon { font-size: 28px; opacity: .25; }
-        .ad-text { font-size: 13px; color: #536070; }
-        .ad-text b { color: #1A1A2E; }
-        .scroll-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; background: var(--white); border: 1.5px solid var(--gray2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,.1); z-index: 10; transition: all .2s; }
-        .scroll-arrow:hover { background: var(--red); color: white; border-color: var(--red); }
-        .arr-right { right: -20px; }
-        .arr-left { left: -20px; }
-        .promo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .promo-card { border-radius: 20px; overflow: hidden; position: relative; cursor: pointer; height: 240px; transition: transform .25s, box-shadow .25s; }
-        .promo-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,.18); }
-        .promo-card-bg { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 80px; transition: transform .4s; }
-        .promo-card:hover .promo-card-bg { transform: scale(1.06); }
-        .promo-card-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.75) 0%, transparent 55%); }
-        .promo-card-content { position: absolute; bottom: 16px; right: 16px; left: 16px; }
-        .promo-chain { font-size: 14px; font-weight: 900; color: rgba(255,255,255,.95); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; text-shadow: 0 1px 4px rgba(0,0,0,.4); }
-        .promo-title { font-family: 'Rubik', sans-serif; font-size: 18px; font-weight: 900; color: white; line-height: 1.3; margin-bottom: 10px; }
-        .promo-discount { display: inline-block; background: var(--red); color: white; font-family: 'Rubik', sans-serif; font-size: 14px; font-weight: 800; padding: 7px 16px; border-radius: 8px; }
-        .pharm-section { background: var(--warm); padding: 4px 0 8px; }
-        footer { background: var(--navy); color: rgba(255,255,255,.8); padding: 48px 24px 28px; margin-top: 20px; }
-        .footer-inner { max-width: 1280px; margin: 0 auto; }
-        .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,.12); margin-bottom: 24px; }
-        .footer-logo { font-family: 'Rubik', sans-serif; font-size: 24px; font-weight: 900; color: var(--white); margin-bottom: 10px; }
-        .footer-logo span { color: var(--red-lt); }
-        .footer-brand p { font-size: 13px; line-height: 1.7; color: rgba(255,255,255,.7); max-width: 220px; }
-        .footer-col h5 { font-size: 13px; font-weight: 800; color: #fff; margin-bottom: 14px; letter-spacing: .5px; text-transform: uppercase; }
-        .footer-col a { display: block; font-size: 13px; margin-bottom: 9px; color: rgba(255,255,255,.72); transition: color .15s; }
-        .footer-col a:hover { color: #fff; }
-        .footer-bottom { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 12px; color: rgba(255,255,255,.6); }
-        .footer-links { display: flex; gap: 20px; }
-        .footer-links a { color: rgba(255,255,255,.6); transition: color .15s; }
-        .footer-links a:hover { color: #fff; }
+      {!search && pharmCoupons.length > 0 && (
+        <div className="pharm-bg">
+          <div className="section">
+            <div className="section-head">
+              <div className="section-title"><span className="dot" />💊 פארם וקוסמטיקה</div>
+              <Link href="/pharm" className="see-all">לכל מבצעי הפארם →</Link>
+            </div>
+            <ScrollRow coupons={pharmCoupons.slice(0, 8)} />
+          </div>
+        </div>
+      )}
 
+      {!search && (
+        <div className="ad-strip-wrap">
+          <div className="ad-strip"><div className="ad-label">פרסומת</div><div className="ad-placeholder">Google Ads — 728×90</div></div>
+        </div>
+      )}
 
-        .coupon-card.expired { opacity: 0.55; filter: grayscale(0.7); }
-        .coupon-card.expired:hover { transform: none; box-shadow: 0 2px 12px rgba(0,0,0,.06); border-color: var(--gray2); cursor: default; }
-        .coupon-card.expired .card-img-bg { filter: grayscale(1); }
-        .card-badge-status.exp { background: #E0E0E0; color: #757575; }
-        .expired-date { color: #E53935 !important; }
+      <style jsx>{`
+        .hero{background:linear-gradient(135deg,#1A1A2E 0%,#2D1B4E 55%,#1A1A2E 100%);padding:52px 24px 68px;position:relative;overflow:hidden}
+        .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(232,50,26,.22) 0%,transparent 55%)}
+        .hero-inner{max-width:1280px;margin:0 auto;position:relative;display:flex;align-items:center;gap:56px}
+        .hero-copy{flex:1}
+        .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:50px;padding:6px 18px;font-size:12px;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:18px}
+        .hero-badge span{color:#FF5A3D}
+        .hero-copy h1{font-family:'Rubik',sans-serif;font-size:50px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:14px}
+        .hero-copy h1 em{color:#FF5A3D;font-style:normal}
+        .hero-sub{font-size:16px;color:rgba(255,255,255,.45);line-height:1.7;max-width:400px;margin-bottom:24px}
+        .hero-search{position:relative;max-width:420px;margin-bottom:28px}
+        .hero-search input{width:100%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.15);border-radius:50px;padding:13px 20px 13px 48px;font-family:'Heebo',sans-serif;font-size:15px;color:#fff;outline:none;transition:all .2s}
+        .hero-search input::placeholder{color:rgba(255,255,255,.35)}
+        .hero-search input:focus{background:rgba(255,255,255,.15);border-color:rgba(255,90,61,.6)}
+        .hs-ico{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:17px;opacity:.4}
+        .hero-stats{display:flex;gap:36px}
+        .hstat strong{font-family:'Rubik',sans-serif;font-size:30px;font-weight:900;color:#fff;display:block}
+        .hstat span{font-size:11px;color:rgba(255,255,255,.35)}
+        .hero-chains{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:20px;min-width:270px;flex-shrink:0}
+        .hc-title{font-size:10px;font-weight:800;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+        .hc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .hc-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:11px 10px;text-align:center;transition:all .2s;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+        .hc-btn:hover{transform:scale(1.03)}
+        .hc-0:hover{background:#F5A623;border-color:#F5A623}.hc-1:hover{background:#2DB86A;border-color:#2DB86A}
+        .hc-2:hover{background:#1565C0;border-color:#1565C0}.hc-3:hover{background:#E53935;border-color:#E53935}
+        .hc-4:hover{background:#7B1FA2;border-color:#7B1FA2}.hc-5:hover{background:#FF6F00;border-color:#FF6F00}
+        .hc-name{font-size:12px;font-weight:700;color:#fff}
+        .hc-count{font-size:10px;color:rgba(255,255,255,.3)}
+        .chips-section{padding:20px 24px 0;max-width:1280px;margin:0 auto}
+        .chips-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+        .chips-row::-webkit-scrollbar{display:none}
+        .chip{flex-shrink:0;display:flex;align-items:center;gap:7px;background:#fff;border:2px solid #E8E0D8;border-radius:50px;padding:7px 16px;font-size:13px;font-weight:700;color:#1A1A2E;transition:all .18s;cursor:pointer;white-space:nowrap}
+        .chip:hover,.chip.on{background:#1A1A2E;border-color:#1A1A2E;color:#fff;transform:translateY(-2px)}
+        .chip-num{background:#F5F0EC;color:#7A6E68;font-size:11px;font-weight:700;padding:2px 7px;border-radius:50px}
+        .chip:hover .chip-num,.chip.on .chip-num{background:rgba(255,255,255,.15);color:rgba(255,255,255,.7)}
+        .section{padding:36px 24px;max-width:1280px;margin:0 auto}
+        .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+        .section-title{font-family:'Rubik',sans-serif;font-size:21px;font-weight:900;color:#1A1A2E;display:flex;align-items:center;gap:10px}
+        .dot{width:7px;height:26px;background:#E8321A;border-radius:4px;display:block;flex-shrink:0}
+        .see-all{font-size:13px;font-weight:700;color:#E8321A}
+        .see-all:hover{text-decoration:underline}
+        .scroll-container{position:relative;overflow:visible}
+        .scroll-row{display:flex;gap:14px;overflow-x:auto;overflow-y:visible;padding:10px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+        .scroll-row::-webkit-scrollbar{display:none}
+        .arr{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;background:#fff;border:1.5px solid #E8E0D8;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:10;transition:all .2s}
+        .arr:hover{background:#E8321A;color:#fff;border-color:#E8321A}
+        .arr-r{right:-18px}.arr-l{left:-18px}
+        .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+        .no-results{text-align:center;color:#7A6E68;padding:40px;font-size:18px}
+        .promo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+        .promo-card{border-radius:20px;overflow:hidden;position:relative;cursor:pointer;height:230px;transition:transform .25s,box-shadow .25s;display:block}
+        .promo-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.18)}
+        .promo-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:80px}
+        .promo-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 55%)}
+        .promo-content{position:absolute;bottom:14px;right:14px;left:14px}
+        .promo-chain{font-size:13px;font-weight:900;color:rgba(255,255,255,.95);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;text-shadow:0 1px 4px rgba(0,0,0,.4)}
+        .promo-title{font-family:'Rubik',sans-serif;font-size:17px;font-weight:900;color:#fff;margin-bottom:8px}
+        .promo-btn{display:inline-block;background:#E8321A;color:#fff;font-size:13px;font-weight:800;padding:6px 14px;border-radius:8px}
+        .pharm-bg{background:#FFF0E6;padding:4px 0}
+        .ad-strip-wrap{padding:0 24px;max-width:1280px;margin:0 auto 8px}
+        .ad-strip{background:#F0F4FF;border:1.5px dashed #C0CFEA;border-radius:14px;padding:16px 24px;text-align:center;position:relative}
+        .ad-label{position:absolute;top:8px;left:12px;background:#C0CFEA;color:#536070;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;padding:2px 7px;border-radius:4px}
+        .ad-placeholder{font-size:13px;color:#536070;padding-top:4px}
         @media(max-width:768px){
-          .header-inner{padding:0 16px;gap:12px;height:60px}
-          .main-nav{display:none}
-          .logo{font-size:22px}
-          .search-wrap{max-width:none;flex:1}
-          .hero{padding:36px 16px 48px}
-          .hero-inner{flex-direction:column;gap:28px}
-          .hero h1{font-size:30px}
-          .hero-sub{font-size:14px;margin-bottom:24px}
-          .hero-stats{gap:20px}
-          .hstat strong{font-size:22px}
+          .hero{padding:28px 16px 40px}
+          .hero-inner{flex-direction:column;gap:24px}
+          .hero-copy h1{font-size:28px}
+          .hero-sub{font-size:14px;margin-bottom:16px}
+          .hero-search{max-width:100%}
+          .hero-stats{gap:16px}
+          .hstat strong{font-size:20px}
           .hero-chains{width:100%;min-width:unset}
           .hc-grid{grid-template-columns:repeat(3,1fr)}
-          .chips-section{padding:16px 16px 0}
-          .chip{padding:7px 12px;font-size:12px}
-          .chip-num{font-size:10px;padding:2px 6px}
-          .section{padding:24px 16px}
-          .section-title{font-size:18px}
-          .scroll-container{margin:0 -16px;padding:0}
-          .scroll-row{padding:12px 16px}
-          .coupon-card{width:210px}
-          .arr-right{right:2px}
-          .arr-left{left:2px}
-          .promo-grid{grid-template-columns:1fr;gap:12px}
-          .promo-card{height:160px}
-          .cards-grid{grid-template-columns:repeat(2,1fr);gap:12px}
-          .card-title{font-size:13px}
-          .btn-details{font-size:12px;padding:9px 6px}
-          .btn-code{font-size:11px;padding:9px 8px}
-          .footer-top{grid-template-columns:1fr;gap:20px}
-          .footer-bottom{flex-direction:column;gap:8px;text-align:center}
-          .footer-links{justify-content:center}
-          .topbar{font-size:11px;gap:8px;padding:6px 12px}
-          .sep{display:none}
+          .chips-section{padding:14px 16px 0}
+          .section{padding:20px 16px}
+          .section-title{font-size:17px}
+          .promo-grid{grid-template-columns:1fr;gap:10px}
+          .promo-card{height:150px}
+          .cards-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+          .scroll-row{margin:0 -16px;padding:10px 16px}
+          .arr{display:none}
           .ad-strip-wrap{padding:0 16px}
         }
         @media(max-width:400px){
           .cards-grid{grid-template-columns:1fr}
           .hc-grid{grid-template-columns:repeat(2,1fr)}
         }
-
-        .coupon-card.expired{opacity:.55;filter:grayscale(1)}
-        .coupon-card.expired:hover{transform:none;box-shadow:0 2px 12px rgba(0,0,0,.06);border-color:var(--gray2);cursor:default}
-        .exp{background:#e0e0e0!important;color:#757575!important}
       `}</style>
-    </>
+    </Layout>
   );
 }
 
 export async function getStaticProps() {
   const coupons = await getCoupons();
-  return { props: { coupons }, revalidate: 3600 };
+  return { props: { coupons }, revalidate: 60 };
 }
