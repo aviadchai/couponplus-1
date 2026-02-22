@@ -5,9 +5,6 @@ import { useState } from 'react';
 const NAV_LINKS = [
   { href: '/', label: 'ראשי', emoji: '🏠' },
   { href: '/deals', label: 'מבצעים', emoji: '🔥' },
-  { href: '/pharm', label: 'פארם', emoji: '💊' },
-  { href: '/category/סופרמרקט', label: 'סופר', emoji: '🛍️' },
-  { href: '/category/אלקטרוניקה', label: 'אלקטרוניקה', emoji: '📱' },
   { href: '/contact', label: 'צור קשר', emoji: '✉️' },
 ];
 
@@ -15,7 +12,7 @@ const CATEGORIES = [
   { href: '/deals', label: '🔥 כל המבצעים' },
   { href: '/pharm', label: '💊 פארם ובריאות' },
   { href: '/category/סופרמרקט', label: '🛍️ סופרמרקט' },
-  { href: '/category/טיפוח וקוסמטיקה', label: '💄 טיפוח וקוסמטיקה' },
+  { href: '/category/טיפוח וקוסמטיקה', label: '💄 טיפוח' },
   { href: '/category/טואלטיקה', label: '🧴 טואלטיקה' },
   { href: '/category/אלקטרוניקה', label: '📱 אלקטרוניקה' },
   { href: '/category/בית ומטבח', label: '🏠 בית ומטבח' },

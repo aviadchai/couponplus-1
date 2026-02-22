@@ -31,7 +31,7 @@ export default function Pharm({ coupons }) {
         .hero-search input{width:100%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.15);border-radius:50px;padding:11px 20px;font-family:'Heebo',sans-serif;font-size:14px;color:#fff;outline:none}
         .hero-search input::placeholder{color:rgba(255,255,255,.35)}
         .section{padding:32px 24px;max-width:1280px;margin:0 auto}
-        .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+        .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
         .no-results{text-align:center;color:#7A6E68;padding:40px;font-size:18px;grid-column:1/-1}
         @media(max-width:768px){.page-hero{padding:32px 16px}.page-hero h1{font-size:26px}.section{padding:20px 16px}.cards-grid{grid-template-columns:repeat(2,1fr);gap:10px}}
         @media(max-width:400px){.cards-grid{grid-template-columns:1fr}}

@@ -147,9 +147,8 @@ export default function Home({ coupons }) {
             <span className="search-ico">🔍</span>
           </div>
           <nav className="main-nav">
-            <Link href="/" className="nav-link active">קופונים</Link>
+            <Link href="/" className="nav-link active">ראשי</Link>
             <Link href="/deals" className="nav-link">מבצעים</Link>
-            <Link href="/pharm" className="nav-link">פארם</Link>
             <Link href="/contact" className="nav-link">צור קשר</Link>
           </nav>
         </div>
@@ -303,6 +302,21 @@ export default function Home({ coupons }) {
             </div>
           )}
 
+          {/* ALL COUPONS GRID */}
+          <div className="section">
+            <div className="section-head">
+              <div className="section-title"><span className="dot"></span>🛒 כל הקופונים</div>
+            </div>
+            <div className="cards-grid">
+              {coupons.filter(c => !c.expired).map((c, i) => (
+                <>
+                  <CouponCard key={c.id} coupon={c} />
+                  {(i + 1) % 8 === 0 && <AdCard key={`ad-all-${i}`} />}
+                </>
+              ))}
+            </div>
+          </div>
+
           {/* AD BEFORE FOOTER */}
           <div className="ad-strip-wrap">
             <div className="ad-strip">
@@ -326,14 +340,16 @@ export default function Home({ coupons }) {
             </div>
             <div className="footer-col">
               <h5>קטגוריות</h5>
-              <a href="#">🛍️ סופרמרקט</a>
-              <a href="#">💊 פארם ובריאות</a>
-              <a href="#">💄 טיפוח</a>
-              <a href="#">📱 אלקטרוניקה</a>
-              <a href="#">🐾 חיות מחמד</a>
+              <Link href="/category/סופרמרקט">🛍️ סופרמרקט</Link>
+              <Link href="/pharm">💊 פארם ובריאות</Link>
+              <Link href="/category/טיפוח וקוסמטיקה">💄 טיפוח</Link>
+              <Link href="/category/אלקטרוניקה">📱 אלקטרוניקה</Link>
+              <Link href="/category/חיות מחמד">🐾 חיות מחמד</Link>
             </div>
             <div className="footer-col">
               <h5>האתר</h5>
+              <Link href="/">ראשי</Link>
+              <Link href="/deals">מבצעים</Link>
               <Link href="/contact">צור קשר</Link>
               <Link href="/privacy">מדיניות פרטיות</Link>
               <Link href="/terms">תנאי שימוש</Link>
@@ -419,7 +435,7 @@ export default function Home({ coupons }) {
         .see-all { font-size: 13px; font-weight: 700; color: var(--red); display: flex; align-items: center; gap: 4px; transition: gap .18s; }
         .see-all:hover { gap: 8px; }
         .scroll-container { position: relative; overflow: visible; }
-        .scroll-row { display: flex; gap: 16px; overflow-x: auto; overflow-y: visible; padding: 12px 4px; scrollbar-width: none; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+        .scroll-row { display: flex; gap: 12px; overflow-x: auto; overflow-y: visible; padding: 12px 4px; scrollbar-width: none; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
         .scroll-row::-webkit-scrollbar { display: none; }
         .coupon-card { background: var(--white); border-radius: 20px; overflow: visible; border: 2px solid var(--gray2); box-shadow: 0 2px 12px rgba(0,0,0,.06); transition: transform .25s, box-shadow .25s, border-color .25s; cursor: pointer; flex-shrink: 0; width: 260px; scroll-snap-align: start; display: flex; flex-direction: column; }
         .coupon-card .card-img { border-radius: 18px 18px 0 0; overflow: hidden; }
@@ -449,7 +465,7 @@ export default function Home({ coupons }) {
         .btn-code.revealed { background: #FFF3E0; color: #E65100; letter-spacing: 2px; }
         .btn-code.copied { background: #E8F5E9; color: #2E7D32; letter-spacing: normal; }
         .btn-code:hover { background: #e0e0e0; }
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
         .no-results { text-align: center; color: var(--muted); padding: 40px; font-size: 18px; }
         .ad-card { background: #F0F4FF; border: 2px dashed #C0CFEA !important; cursor: default; justify-content: center; align-items: center; min-height: 340px; position: relative; }
         .ad-card:hover { transform: none !important; box-shadow: none !important; border-color: #C0CFEA !important; }

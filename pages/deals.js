@@ -51,7 +51,7 @@ export default function Deals({ coupons }) {
         .cchip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);padding:6px 16px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s}
         .cchip:hover,.cchip.on{background:#E8321A;border-color:#E8321A;color:#fff}
         .section{padding:32px 24px;max-width:1280px;margin:0 auto}
-        .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+        .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
         .no-results{text-align:center;color:#7A6E68;padding:40px;font-size:18px;grid-column:1/-1}
         @media(max-width:768px){
           .page-hero{padding:32px 16px}
