@@ -97,6 +97,7 @@ function AdCard() {
 export default function Home({ coupons }) {
   const [search, setSearch] = useState('');
   const [activeCat, setActiveCat] = useState('all');
+  const [userPickedAll, setUserPickedAll] = useState(false);
   const hotRef = useRef(null);
   const pharmRef = useRef(null);
 
@@ -172,7 +173,7 @@ export default function Home({ coupons }) {
             <div className="hc-title">בחר רשת</div>
             <div className="hc-grid">
               {chains.slice(0, 6).map((chain, i) => (
-                <div key={chain} className={`hc-btn hc-${i}`} onClick={() => setActiveCat(chain)}>
+                <div key={chain} className={`hc-btn hc-${i}`} onClick={() => { setActiveCat(chain); setUserPickedAll(false); }}>
                   <span className="hc-btn-name">{chain}</span>
                   <span className="hc-btn-count">{coupons.filter(c => c.chain === chain).length} מבצעים</span>
                 </div>
@@ -189,7 +190,7 @@ export default function Home({ coupons }) {
             <div
               key={cat.key}
               className={`chip ${activeCat === cat.key ? 'on' : ''}`}
-              onClick={() => setActiveCat(cat.key)}
+              onClick={() => { setActiveCat(cat.key); setUserPickedAll(cat.key === 'all'); }}
             >
               {cat.label}
               <span className="chip-num">
@@ -202,12 +203,12 @@ export default function Home({ coupons }) {
         </div>
       </div>
 
-      {/* SEARCH RESULTS */}
-      {(search || activeCat !== 'all') && (
+      {/* SEARCH RESULTS / ALL */}
+      {(search || activeCat !== 'all' || userPickedAll) && (
         <div className="section">
           <div className="section-head">
             <div className="section-title"><span className="dot"></span>
-              {search ? `תוצאות עבור "${search}"` : CATEGORIES.find(c => c.key === activeCat)?.label}
+              {search ? `תוצאות עבור "${search}"` : userPickedAll ? "🛒 כל הקופונים" : CATEGORIES.find(c => c.key === activeCat)?.label}
             </div>
           </div>
           <div className="cards-grid">
@@ -223,7 +224,7 @@ export default function Home({ coupons }) {
       )}
 
       {/* HOT NOW */}
-      {!search && activeCat === 'all' && (
+      {!search && activeCat === 'all' && !userPickedAll && (
         <>
           <div className="section">
             <div className="section-head">
@@ -266,7 +267,7 @@ export default function Home({ coupons }) {
                 const ch = CHAIN_COLORS[chain] || DEFAULT_CHAIN;
                 const chainCoupons = coupons.filter(c => c.chain === chain);
                 return (
-                  <div key={chain} className="promo-card" onClick={() => setActiveCat(chain)}>
+                  <div key={chain} className="promo-card" onClick={() => { setActiveCat(chain); setUserPickedAll(false); }}>
                     <div className="promo-card-bg" style={{ background: ch.bg }}>{ch.emoji}</div>
                     <div className="promo-card-overlay"></div>
                     <div className="promo-card-content">
@@ -301,21 +302,6 @@ export default function Home({ coupons }) {
               </div>
             </div>
           )}
-
-          {/* ALL COUPONS GRID */}
-          <div className="section">
-            <div className="section-head">
-              <div className="section-title"><span className="dot"></span>🛒 כל הקופונים</div>
-            </div>
-            <div className="cards-grid">
-              {coupons.filter(c => !c.expired).map((c, i) => (
-                <>
-                  <CouponCard key={c.id} coupon={c} />
-                  {(i + 1) % 8 === 0 && <AdCard key={`ad-all-${i}`} />}
-                </>
-              ))}
-            </div>
-          </div>
 
           {/* AD BEFORE FOOTER */}
           <div className="ad-strip-wrap">
