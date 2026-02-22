@@ -103,7 +103,7 @@ export default function CouponCard({ coupon }) {
         .cc-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,.14); border-color: #E8321A; }
         .cc-expired { opacity: .55; filter: grayscale(.7); pointer-events: none; }
         .cc-expired:hover { transform: none; box-shadow: 0 2px 12px rgba(0,0,0,.06); border-color: #E8E0D8; }
-        .cc-img { width: 100%; height: 155px; position: relative; border-radius: 16px 16px 0 0; overflow: hidden; flex-shrink: 0; }
+        .cc-img { width: 100%; height: 155px; position: relative; border-radius: 16px 16px 0 0; overflow: hidden; flex-shrink: 0; background: #F5F0EC; }
         .cc-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
         .cc-card:hover .cc-img img { transform: scale(1.06); }
         .cc-emoji { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 58px; transition: transform .4s; }

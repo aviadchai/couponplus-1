@@ -36,11 +36,11 @@ function ScrollRow({ coupons }) {
       <button className="arr arr-r" onClick={() => scroll(-1)}>‹</button>
       <div className="scroll-row" ref={ref}>
         {coupons.map((c, i) => (
-          <div key={c.id} style={{ flexShrink: 0 }}>
+          <div key={c.id} style={{ flexShrink: 0, width: 250 }}>
             <CouponCard coupon={c} />
           </div>
         ))}
-        <div style={{ flexShrink: 0 }}><AdCard /></div>
+        <div style={{ flexShrink: 0, width: 250 }}><AdCard /></div>
       </div>
       <button className="arr arr-l" onClick={() => scroll(1)}>›</button>
     </div>
