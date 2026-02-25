@@ -124,7 +124,7 @@ export default function CouponPage({ coupon, related }) {
       </div>
 
       <style jsx>{`
-        .page-wrap{max-width:1280px;margin:0 auto;padding:32px 24px}
+        .page-wrap{max-width:1280px;margin:0 auto;padding:32px 16px;overflow-x:hidden}
         .coupon-detail{display:grid;grid-template-columns:1fr 1.4fr;gap:40px;margin-bottom:40px}
         .expired-detail{opacity:.7}
         .detail-img{border-radius:24px;height:360px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
