@@ -86,36 +86,31 @@ export default function CouponCard({ coupon }) {
 
         {/* FOOTER */}
         <div className="cc-footer">
-          {/* MAIN BUTTON */}
           <button className={`cc-btn-main${expired ? ' cc-btn-exp' : ''}`}>
             {expired ? '⏰ פג תוקף' : 'פרטים נוספים →'}
           </button>
 
-          {/* STICKER CODE BUTTON */}
-          {coupon.code && !expired && (
-            <button className={`cc-sticker${revealed ? ' is-revealed' : ''}${copied ? ' is-copied' : ''}`} onClick={handleCode}>
+          {/* קישור להטבה — when type is url-based */}
+          {coupon.url && !expired && (coupon.type === 'קישור להטבה' || coupon.type === 'קוד + קישור' || !coupon.code) && (
+            <a href={coupon.url} target="_blank" rel="noopener noreferrer"
+               className="cc-btn-url" onClick={e => e.stopPropagation()}>
+              🔗 לקבלת ההטבה
+            </a>
+          )}
+
+          {/* קוד קופון sticker — when type has a code */}
+          {coupon.code && !expired && coupon.type !== 'קישור להטבה' && (
+            <button className={`cc-sticker${revealed ? ' rev' : ''}${copied ? ' cop' : ''}`} onClick={handleCode}>
               {copied ? (
-                /* ── STATE: COPIED ── */
-                <span className="s-copied">✅ הועתק!</span>
+                <span className="sticker-copied">✅ הועתק!</span>
               ) : revealed ? (
-                /* ── STATE: REVEALED ── */
-                <span className="s-open">
-                  <span className="s-open-code">{coupon.code}</span>
-                  <span className="s-open-copy">העתק</span>
-                </span>
+                <span className="sticker-code">{coupon.code}</span>
               ) : (
-                /* ── STATE: MASKED (sticker effect) ── */
-                <span className="s-mask">
-                  {/* visible part */}
-                  <span className="s-vis">{codeVisible}</span>
-                  {/* blurred/hidden part with sticker overlay */}
-                  <span className="s-hidden-wrap">
-                    <span className="s-hidden-code">{codeHidden || '••••'}</span>
-                    {/* red peel sticker on top */}
-                    <span className="s-peel">
-                      <span className="s-peel-dots">••••</span>
-                      <span className="s-peel-label">הצג קוד</span>
-                    </span>
+                <span className="sticker-mask">
+                  <span className="sticker-visible">{coupon.code.slice(0,3)}</span>
+                  <span className="sticker-peel">
+                    <span className="sticker-dots">••••</span>
+                    <span className="sticker-tap">הצג</span>
                   </span>
                 </span>
               )}
@@ -168,11 +163,15 @@ export default function CouponCard({ coupon }) {
         .cc-btn-main { flex: 1; background: #1A1A2E; color: #fff; border-radius: 9px; padding: 9px 6px; font-size: 12px; font-weight: 800; text-align: center; transition: background .18s; border: none; cursor: pointer; font-family: 'Heebo', sans-serif; white-space: nowrap; }
         .cc-btn-main:hover { background: #E8321A; }
         .cc-btn-exp { background: #9E9E9E; cursor: not-allowed; }
+        .cc-btn-link { display:flex; align-items:center; justify-content:center; gap:5px; background:linear-gradient(135deg,#2DB86A,#1a9453); color:#fff; border-radius:9px; padding:0 12px; height:36px; font-size:12px; font-weight:800; font-family:'Heebo',sans-serif; white-space:nowrap; flex-shrink:0; transition:all .18s; text-decoration:none; }
+        .cc-btn-link:hover { background:linear-gradient(135deg,#34d679,#22b560); transform:translateY(-1px); box-shadow:0 4px 14px rgba(45,184,106,.35); }
         .cc-btn-exp:hover { background: #9E9E9E !important; }
 
         /* ══════════════════════════════
            STICKER BUTTON
         ══════════════════════════════ */
+        .cc-btn-url { display:flex; align-items:center; height:36px; padding:0 11px; background:linear-gradient(135deg,#1565C0,#1976D2); color:#fff; border-radius:9px; font-size:11px; font-weight:800; white-space:nowrap; text-decoration:none; transition:all .18s; font-family:'Heebo',sans-serif; flex-shrink:0; gap:4px; }
+        .cc-btn-url:hover { background:linear-gradient(135deg,#0D47A1,#1565C0); transform:scale(1.03); }
         .cc-sticker {
           position: relative;
           border: none;
