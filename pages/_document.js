@@ -16,6 +16,13 @@ export default function Document() {
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <meta property="og:site_name" content="קופון+" />
         <meta property="og:locale" content="he_IL" />
+
+        {/* Google AdSense */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4043605963907322"
+          crossOrigin="anonymous"
+        />
       </Head>
       <body>
         <Main />
