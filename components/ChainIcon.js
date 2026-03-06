@@ -43,16 +43,6 @@ export default function ChainIcon({ chain, size = 36 }) {
         {/* Wheels */}
         <circle cx="17.5" cy="27.5" r="1.7" fill={c}/>
         <circle cx="27" cy="27.5" r="1.7" fill={c}/>
-        {/* Chain symbol */}
-        <text
-          x="20" y="21"
-          fontFamily="Arial, sans-serif"
-          fontWeight="900"
-          fontSize={symbol.length > 2 ? "5.5" : "6.5"}
-          fill={c}
-          textAnchor="middle"
-          dominantBaseline="middle"
-        >{symbol}</text>
       </svg>
     </div>
   );

@@ -140,10 +140,7 @@ export default function CouponCard({ coupon }) {
         .cc-img-fallback {
           width:100%; height:100%;
           display:flex; align-items:center; justify-content:center;
-          background: var(--cbg);
-          font-size: 52px; font-weight: 900;
-          color: rgba(255,255,255,.15);
-          font-family: 'Rubik', sans-serif;
+          background: #F5F1EE;
         }
         .cc-img-overlay {
           position:absolute; inset:0;
