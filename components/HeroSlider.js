@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/router';
 
 const TINTS = [
   'linear-gradient(135deg,#6A1B9A,transparent)',
@@ -17,9 +18,10 @@ const TAG_EMOJI = {
 };
 
 export default function HeroSlider({ slides = [] }) {
-  const [cur,     setCur]     = useState(0);
-  const [revealed,setRevealed]= useState(false);
-  const [copied,  setCopied]  = useState(false);
+  const [cur,      setCur]      = useState(0);
+  const [revealed, setRevealed] = useState(false);
+  const [copied,   setCopied]   = useState(false);
+  const router = useRouter();
   const total = slides.length;
 
   const goTo = useCallback(i => {
@@ -38,13 +40,34 @@ export default function HeroSlider({ slides = [] }) {
 
   const slide = slides[cur];
 
+  // Where does this slide link to?
+  function getSlideHref(s) {
+    if (s.couponId) return `/coupon/${s.couponId}`;
+    if (s.url) return s.url;
+    return null;
+  }
+
+  function handleSlideClick(e) {
+    // Don't navigate if clicking on code/url buttons
+    if (e.target.closest('.hs-btn-url') || e.target.closest('.hs-sticker')) return;
+    const href = getSlideHref(slide);
+    if (!href) return;
+    if (href.startsWith('/')) {
+      router.push(href);
+    } else {
+      window.open(href, '_blank', 'noopener noreferrer');
+    }
+  }
+
   function handleCode(e) {
     e.preventDefault(); e.stopPropagation();
     if (!revealed) { setRevealed(true); return; }
-    navigator.clipboard.writeText(slide.code).catch(()=>{});
+    navigator.clipboard.writeText(slide.code).catch(() => {});
     setCopied(true);
     setTimeout(() => { setCopied(false); setRevealed(false); }, 2000);
   }
+
+  const slideHref = getSlideHref(slide);
 
   return (
     <div className="hs-outer">
@@ -53,29 +76,25 @@ export default function HeroSlider({ slides = [] }) {
         <span className="hs-title">המבצעים הכי חמים 🔥</span>
       </div>
 
-      <div className="hs-slider">
+      <div className={`hs-slider${slideHref ? ' clickable' : ''}`} onClick={handleSlideClick}>
         <span className="hs-hot">🔥 חם עכשיו</span>
 
         {total > 1 && <>
-          <button className="hs-arr hs-arr-r" onClick={() => goTo(cur - 1)}>‹</button>
-          <button className="hs-arr hs-arr-l" onClick={() => goTo(cur + 1)}>›</button>
+          <button className="hs-arr hs-arr-r" onClick={e => { e.stopPropagation(); goTo(cur - 1); }}>‹</button>
+          <button className="hs-arr hs-arr-l" onClick={e => { e.stopPropagation(); goTo(cur + 1); }}>›</button>
         </>}
 
         {/* Slides */}
         <div className="hs-track" style={{ transform: `translateX(${cur * 100}%)` }}>
           {slides.map((s, i) => (
             <div key={i} className="hs-slide">
-              {/* Background image or gradient */}
               <div className="hs-bg" style={{
                 backgroundImage: s.image ? `url(${s.image})` : 'none',
                 background: s.image ? undefined : FALLBACK_BG[i % 3],
               }} />
-              {/* Overlay */}
               <div className="hs-overlay" />
-              {/* Color tint */}
               <div className="hs-tint" style={{ background: TINTS[i % 3] }} />
 
-              {/* Content */}
               <div className="hs-content">
                 <div className="hs-left">
                   {s.tag && (
@@ -114,6 +133,10 @@ export default function HeroSlider({ slides = [] }) {
                         )}
                       </button>
                     )}
+                    {/* "לפרטים נוספים" hint when slide is clickable */}
+                    {getSlideHref(s) && (
+                      <span className="hs-more-hint">← לפרטים נוספים</span>
+                    )}
                   </div>
                 </div>
                 {s.discount && (
@@ -126,7 +149,6 @@ export default function HeroSlider({ slides = [] }) {
         </div>
       </div>
 
-      {/* Dots */}
       {total > 1 && (
         <div className="hs-dots">
           {slides.map((_, i) => (
@@ -141,18 +163,16 @@ export default function HeroSlider({ slides = [] }) {
         .hs-bar { width:5px; height:22px; background:#E8321A; border-radius:3px; display:block; flex-shrink:0; }
         .hs-title { font-family:'Rubik',sans-serif; font-size:20px; font-weight:900; color:#1A1A2E; }
 
-        /* Slider shell */
         .hs-slider { position:relative; border-radius:22px; overflow:hidden; height:400px; box-shadow:0 12px 48px rgba(0,0,0,.22); }
+        .hs-slider.clickable { cursor:pointer; }
+        .hs-slider.clickable:hover .hs-bg { transform:scale(1.04); }
         .hs-track { display:flex; height:100%; transition:transform .55s cubic-bezier(.4,0,.2,1); }
         .hs-slide { min-width:100%; height:100%; position:relative; display:flex; align-items:flex-end; }
 
-        /* Layers */
         .hs-bg { position:absolute; inset:0; background-size:cover; background-position:center; transition:transform 6s ease; }
-        .hs-slide:hover .hs-bg { transform:scale(1.04); }
         .hs-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.5) 40%,rgba(0,0,0,.15) 70%,rgba(0,0,0,.0) 100%); }
         .hs-tint { position:absolute; inset:0; opacity:.22; }
 
-        /* Content */
         .hs-content { position:relative; z-index:3; width:100%; padding:32px 44px; display:flex; justify-content:space-between; align-items:flex-end; gap:20px; }
         .hs-left { flex:1; min-width:0; }
         .hs-tag { display:inline-flex; background:rgba(255,255,255,.12); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,.2); color:#fff; font-size:11px; font-weight:800; padding:4px 14px; border-radius:20px; margin-bottom:12px; letter-spacing:.5px; }
@@ -160,13 +180,12 @@ export default function HeroSlider({ slides = [] }) {
         .hs-sub { font-size:14px; color:rgba(255,255,255,.6); margin-bottom:18px; line-height:1.5; }
         .hs-discount { font-family:'Rubik',sans-serif; font-size:72px; font-weight:900; color:#fff; line-height:1; flex-shrink:0; opacity:.92; text-shadow:0 4px 30px rgba(0,0,0,.4); }
 
-        /* Buttons */
         .hs-btns { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-        .hs-btn-url { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.12); backdrop-filter:blur(10px); border:1.5px solid rgba(255,255,255,.28); color:#fff; border-radius:11px; padding:11px 20px; font-size:13px; font-weight:800; text-decoration:none; font-family:'Heebo',sans-serif; transition:all .18s; }
+        .hs-btn-url { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.12); backdrop-filter:blur(10px); border:1.5px solid rgba(255,255,255,.28); color:#fff; border-radius:11px; padding:11px 20px; font-size:13px; font-weight:800; text-decoration:none; font-family:'Heebo',sans-serif; transition:all .18s; position:relative; z-index:5; }
         .hs-btn-url:hover { background:rgba(255,255,255,.22); }
+        .hs-more-hint { font-size:12px; color:rgba(255,255,255,.5); font-weight:600; align-self:center; }
 
-        /* Sticker */
-        .hs-sticker { border:none; cursor:pointer; border-radius:11px; padding:0; background:transparent; font-family:'Rubik',sans-serif; transition:transform .15s; white-space:nowrap; }
+        .hs-sticker { border:none; cursor:pointer; border-radius:11px; padding:0; background:transparent; font-family:'Rubik',sans-serif; transition:transform .15s; white-space:nowrap; position:relative; z-index:5; }
         .hs-sticker:hover { transform:scale(1.04); }
         .hs-mask { display:flex; align-items:stretch; height:40px; border-radius:11px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,.3); }
         .hs-vis { display:flex; align-items:center; padding:0 14px; background:rgba(255,255,255,.95); color:#1A1A2E; font-size:13px; font-weight:900; letter-spacing:2px; }
@@ -177,7 +196,6 @@ export default function HeroSlider({ slides = [] }) {
         .hs-cop { display:flex; align-items:center; padding:0 14px; height:40px; background:#E8F5E9; color:#2E7D32; font-size:13px; font-weight:800; border-radius:11px; }
         @keyframes pop { 0%{transform:scale(.95)} 60%{transform:scale(1.06)} 100%{transform:scale(1)} }
 
-        /* Nav */
         .hs-hot { position:absolute; top:18px; right:18px; background:#E8321A; color:#fff; font-size:10px; font-weight:800; padding:5px 14px; border-radius:20px; z-index:5; letter-spacing:.5px; box-shadow:0 4px 12px rgba(232,50,26,.4); }
         .hs-arr { position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,.1); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,.18); color:#fff; width:46px; height:46px; border-radius:50%; font-size:22px; cursor:pointer; z-index:10; display:flex; align-items:center; justify-content:center; transition:all .18s; }
         .hs-arr:hover { background:rgba(255,255,255,.22); transform:translateY(-50%) scale(1.08); }
@@ -185,12 +203,10 @@ export default function HeroSlider({ slides = [] }) {
         .hs-arr-l { left:16px; }
         .hs-counter { position:absolute; bottom:18px; left:44px; z-index:5; font-size:12px; color:rgba(255,255,255,.4); font-weight:700; letter-spacing:1px; }
 
-        /* Dots */
         .hs-dots { display:flex; justify-content:center; gap:8px; margin-top:13px; }
         .hs-dot { width:8px; height:8px; border-radius:50%; background:rgba(26,26,46,.2); border:none; cursor:pointer; padding:0; transition:all .3s cubic-bezier(.4,0,.2,1); }
         .hs-dot.on { background:#E8321A; width:28px; border-radius:4px; }
 
-        /* Mobile */
         @media (max-width:700px) {
           .hs-outer { padding:0 14px; margin-top:20px; }
           .hs-slider { height:220px; border-radius:16px; }
@@ -204,6 +220,7 @@ export default function HeroSlider({ slides = [] }) {
           .hs-btn-url { padding:9px 14px; font-size:12px; }
           .hs-arr { width:34px; height:34px; font-size:16px; }
           .hs-dot.on { width:20px; }
+          .hs-more-hint { display:none; }
         }
       `}</style>
     </div>

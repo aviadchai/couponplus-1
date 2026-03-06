@@ -42,12 +42,12 @@ export default function Home({ coupons, slides }) {
     return ms && mc;
   });
 
-  // Super section: only supermarket coupons, filtered by selected chain
+  // Super section: ALL supermarket coupons (regardless of badge or expiry)
   const superNames   = SUPER_CHAINS.map(s => s.name);
   const superCoupons = coupons.filter(c => superNames.includes(c.chain) || c.category === 'סופרמרקט');
   const superFiltered = activeSuper
     ? superCoupons.filter(c => c.chain === activeSuper)
-    : superCoupons.filter(c => c.badge === 'חם').slice(0, 8);
+    : superCoupons.slice(0, 8);
 
   const superLabel = activeSuper
     ? `🔥 הקופונים של ${activeSuper}`
