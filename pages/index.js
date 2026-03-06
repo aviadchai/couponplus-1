@@ -4,6 +4,7 @@ import { getCoupons, getSlides } from '../lib/sheets';
 import Layout from '../components/Layout';
 import CouponCard from '../components/CouponCard';
 import HeroSlider from '../components/HeroSlider';
+import ChainIcon from '../components/ChainIcon';
 
 const CATEGORIES = [
   { key: 'all',              label: '🛒 הכל' },
@@ -20,14 +21,14 @@ const CATEGORIES = [
 
 // Supermarket chains — any coupon whose chain matches one of these shows in the super section
 const SUPER_CHAINS = [
-  { name: 'רמי לוי',    emoji: '🛒', color: '#F5A623' },
-  { name: 'שופרסל',     emoji: '🟢', color: '#2DB86A' },
-  { name: 'מגה',        emoji: '🔵', color: '#1565C0' },
-  { name: 'ויקטורי',    emoji: '❤️', color: '#E53935' },
-  { name: 'יינות ביתן', emoji: '🍷', color: '#7B1FA2' },
-  { name: 'חצי חינם',   emoji: '🏷️', color: '#FF6F00' },
-  { name: 'יוחננוף',    emoji: '🛍️', color: '#0288D1' },
-  { name: 'אושר עד',    emoji: '🌿', color: '#388E3C' },
+  { name: 'רמי לוי',    color: '#D42B0F' },
+  { name: 'שופרסל',     color: '#D42B0F' },
+  { name: 'מגה',        color: '#22A05A' },
+  { name: 'ויקטורי',    color: '#FF7A00' },
+  { name: 'יינות ביתן', color: '#7B1FA2' },
+  { name: 'חצי חינם',   color: '#D42B0F' },
+  { name: 'יוחננוף',    color: '#0288D1' },
+  { name: 'אושר עד',    color: '#388E3C' },
 ];
 
 export default function Home({ coupons, slides }) {
@@ -113,8 +114,11 @@ export default function Home({ coupons, slides }) {
                       document.getElementById('super-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }}
                   >
-                    <span className="hg-btn-name">{s.name}</span>
-                    <span className="hg-btn-count">{count > 0 ? `${count} קופונים` : 'בקרוב'}</span>
+                    <ChainIcon chain={s.name} size={28} />
+                    <div className="hg-btn-text">
+                      <span className="hg-btn-name">{s.name}</span>
+                      <span className="hg-btn-count">{count > 0 ? `${count} קופונים` : 'בקרוב'}</span>
+                    </div>
                     {isActive && <span className="hg-check">✓</span>}
                   </button>
                 );
@@ -235,7 +239,11 @@ export default function Home({ coupons, slides }) {
           transition: all .2s;
           position: relative;
           font-family:'Heebo',sans-serif;
+          display: flex;
+          align-items: center;
+          gap: 10px;
         }
+        .hg-btn-text { display:flex; flex-direction:column; align-items:flex-start; flex:1; min-width:0; }
         .hg-btn:hover:not(.empty) {
           background: color-mix(in srgb, var(--chain-color) 25%, rgba(255,255,255,.1));
           border-color: var(--chain-color);

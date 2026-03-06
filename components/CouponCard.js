@@ -1,13 +1,16 @@
 import Link from 'next/link';
 import { useState } from 'react';
+import ChainIcon, { CHAIN_DATA } from './ChainIcon';
 
 const CHAIN_META = {
-  'רמי לוי':    { accent: '#D4931A', bg: '#1C180E' },
-  'שופרסל':     { accent: '#22A05A', bg: '#0F1C13' },
-  'מגה':        { accent: '#2B6FD4', bg: '#0D1520' },
-  'ויקטורי':    { accent: '#D43A2B', bg: '#1C100E' },
-  'יינות ביתן': { accent: '#9B4FC8', bg: '#160E1C' },
-  'חצי חינם':   { accent: '#D47A1A', bg: '#1C1610' },
+  'רמי לוי':    { accent: '#D42B0F', bg: '#1C0E0E' },
+  'שופרסל':     { accent: '#D42B0F', bg: '#1C0E0E' },
+  'מגה':        { accent: '#22A05A', bg: '#0F1C13' },
+  'ויקטורי':    { accent: '#FF7A00', bg: '#1C1408' },
+  'יינות ביתן': { accent: '#7B1FA2', bg: '#150E1C' },
+  'חצי חינם':   { accent: '#D42B0F', bg: '#1C0E0E' },
+  'יוחננוף':    { accent: '#0288D1', bg: '#0D1520' },
+  'אושר עד':    { accent: '#388E3C', bg: '#0F1C13' },
   'סופר-פארם':  { accent: '#9B30CC', bg: '#160E1C' },
   'KSP':        { accent: '#2B74D4', bg: '#0D1520' },
   'לליין':      { accent: '#CC4A1A', bg: '#1C1210' },
@@ -64,7 +67,7 @@ export default function CouponCard({ coupon }) {
         <div className="cc-img">
           {imgSrc
             ? <img src={imgSrc} alt={coupon.name} onError={e => e.target.style.opacity = 0} />
-            : <div className="cc-img-fallback"><span>{coupon.chain?.[0] || '✂'}</span></div>
+            : <div className="cc-img-fallback"><ChainIcon chain={coupon.chain} size={56} /></div>
           }
           <div className="cc-img-overlay" />
 
