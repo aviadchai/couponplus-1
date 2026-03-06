@@ -18,17 +18,7 @@ const CHAIN_META = {
 };
 const DEFAULT_META = { accent: '#CC4A1A', bg: '#1C1210' };
 
-const BADGE_LABEL = { 'חם': 'HOT', 'חדש': 'NEW', 'מוגבל': 'LIMITED' };
-
-// Placeholder images per category
-const CATEGORY_IMG = {
-  'סופרמרקט': 'https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=600&q=80',
-  'פארם ובריאות': 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&q=80',
-  'אלקטרוניקה': 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=600&q=80',
-  'טיפוח וקוסמטיקה': 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600&q=80',
-  'בית ומטבח': 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80',
-  'אופנה': 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&q=80',
-};
+const BADGE_LABEL = { 'חם': '🔥 חם', 'חדש': '✨ חדש', 'מוגבל': '⚡ מוגבל' };
 
 export function AdCard() {
   return (
@@ -48,7 +38,7 @@ export default function CouponCard({ coupon }) {
   const meta    = CHAIN_META[coupon.chain] || DEFAULT_META;
   const expired = coupon.expired;
   const badgeLabel = BADGE_LABEL[coupon.badge];
-  const imgSrc = coupon.image || CATEGORY_IMG[coupon.category] || null;
+  const imgSrc = coupon.image || null;
 
   function handleCode(e) {
     e.preventDefault(); e.stopPropagation();
@@ -109,15 +99,12 @@ export default function CouponCard({ coupon }) {
               {coupon.url && (coupon.type === 'קישור להטבה' || coupon.type === 'קוד + קישור' || (!coupon.code)) && (
                 <a href={coupon.url} target="_blank" rel="noopener noreferrer"
                    className="cc-cta-url" onClick={e => e.stopPropagation()}>
-                  לקבלת ההטבה
+                  לקבלת ההטבה ↗
                 </a>
               )}
-              <Link href={`/coupon/${coupon.id}`} className="cc-cta">
-                פרטים ←
-              </Link>
             </>
           ) : (
-            <div className="cc-cta cc-cta-dead">פג תוקף</div>
+            <div className="cc-cta-dead">פג תוקף</div>
           )}
         </div>
 
@@ -178,9 +165,8 @@ export default function CouponCard({ coupon }) {
           background: rgba(0,0,0,.5);
           backdrop-filter: blur(8px);
           color: #fff;
-          font-size: 9px; font-weight: 800;
-          letter-spacing: 1.8px; text-transform: uppercase;
-          padding: 3px 8px; border-radius: 5px;
+          font-size: 11px; font-weight: 800;
+          padding: 3px 10px; border-radius: 20px;
           border: 1px solid rgba(255,255,255,.12);
         }
         .cc-pill-status.exp { background: rgba(50,50,50,.6); }
