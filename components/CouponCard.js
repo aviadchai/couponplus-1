@@ -98,7 +98,7 @@ export default function CouponCard({ coupon }) {
               {coupon.url && (coupon.type === 'קישור להטבה' || coupon.type === 'קוד + קישור' || (!coupon.code)) && (
                 <a href={coupon.url} target="_blank" rel="noopener noreferrer"
                    className="cc-cta-url" onClick={e => e.stopPropagation()}>
-                  לקבלת ההטבה ↗
+                  לקבלת ההטבה
                 </a>
               )}
             </>
@@ -132,10 +132,11 @@ export default function CouponCard({ coupon }) {
           height: 160px;
           overflow: hidden;
           flex-shrink: 0;
-          background: var(--cbg);
+          background: #F5F1EE;
         }
         .cc-img img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .5s ease; }
         .cc:hover .cc-img img { transform: scale(1.06); }
+        .cc-img-fallback {
           width:100%; height:100%;
           display:flex; align-items:center; justify-content:center;
           background: #F5F1EE;

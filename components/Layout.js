@@ -3,10 +3,10 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 const NAV_LINKS = [
-  { href: '/',            label: 'ראשי',       emoji: '🏠' },
-  { href: '/deals',       label: 'מבצעים',     emoji: '🔥' },
-  { href: '/international', label: 'בינלאומי', emoji: '🌍' },
-  { href: '/contact',     label: 'צור קשר',    emoji: '✉️' },
+  { href: '/',              label: 'ראשי',     icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
+  { href: '/deals',         label: 'מבצעים',   icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> },
+  { href: '/international', label: 'בינלאומי', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg> },
+  { href: '/contact',       label: 'צור קשר',  icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> },
 ];
 
 const FOOTER_CATS = [
@@ -78,7 +78,7 @@ export default function Layout({ children }) {
               <Link key={l.href} href={l.href}
                 className={`mob-link${isActive(l.href) ? ' active' : ''}`}
                 onClick={() => setOpen(false)}>
-                <span className="mob-emoji">{l.emoji}</span>{l.label}
+                <span className="mob-icon">{l.icon}</span>{l.label}
               </Link>
             ))}
             <div className="mob-divider" />
@@ -144,7 +144,7 @@ export default function Layout({ children }) {
       <nav className="bot-nav">
         {NAV_LINKS.map(l => (
           <Link key={l.href} href={l.href} className={`bot-item${isActive(l.href) ? ' active' : ''}`}>
-            <span className="bot-emoji">{l.emoji}</span>
+            <span className="mob-icon">{l.icon}</span>
             <span className="bot-lbl">{l.label}</span>
           </Link>
         ))}
@@ -183,7 +183,9 @@ export default function Layout({ children }) {
         .mob-menu { position: absolute; top: 64px; right: 0; left: 0; background: var(--white); border-bottom: 2px solid var(--gray2); box-shadow: 0 8px 24px rgba(0,0,0,.12); z-index: 199; padding: 8px 0 16px; max-height: 80vh; overflow-y: auto; }
         .mob-link { display: flex; align-items: center; gap: 10px; padding: 12px 24px; font-size: 15px; font-weight: 600; color: var(--navy); transition: background .15s; }
         .mob-link:hover, .mob-link.active { background: var(--gray); color: var(--red); }
-        .mob-emoji { font-size: 18px; width: 24px; text-align: center; }
+        .mob-icon { display:flex; align-items:center; justify-content:center; width:22px; flex-shrink:0; color:var(--muted); }
+        .mob-link:hover .mob-icon, .mob-link.active .mob-icon { color:var(--red); }
+        .bot-item .mob-icon { color:inherit; }
         .mob-divider { height: 1px; background: var(--gray2); margin: 8px 24px; }
         .mob-sec-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding: 4px 24px 8px; }
 
@@ -214,7 +216,6 @@ export default function Layout({ children }) {
         .bot-nav { display: none; position: fixed; bottom: 0; right: 0; left: 0; background: var(--white); border-top: 1px solid var(--gray2); box-shadow: 0 -4px 16px rgba(0,0,0,.08); z-index: 300; height: 62px; }
         .bot-item { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 2px; color: var(--muted); transition: color .18s; padding: 6px 0; }
         .bot-item.active { color: var(--red); }
-        .bot-emoji { font-size: 19px; line-height: 1; }
         .bot-lbl { font-size: 9px; font-weight: 700; }
 
         /* CARDS GRID — global so all pages use same */
