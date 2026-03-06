@@ -139,7 +139,7 @@ export default function Home({ coupons, slides }) {
           <span className="super-count">{superFiltered.length} קופונים</span>
         </div>
         {superFiltered.length > 0 ? (
-          <div className="pg-grid">
+          <div className="super-grid">
             {superFiltered.map(c => (
               <div key={c.id} className="pg-cell"><CouponCard coupon={c} /></div>
             ))}
@@ -279,6 +279,9 @@ export default function Home({ coupons, slides }) {
         .chip-n { background:#F5F0EC; color:#7A6E68; font-size:11px; font-weight:700; padding:1px 7px; border-radius:50px; transition:all .18s; }
         .chip.on .chip-n,.chip:hover .chip-n { background:rgba(255,255,255,.15); color:rgba(255,255,255,.7); }
 
+        /* ── SUPER GRID ── */
+        .super-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:16px; }
+
         /* ── MAIN GRID ── */
         .pg-section { padding:24px 20px 32px; max-width:1280px; margin:0 auto; }
         .pg-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
@@ -296,14 +299,31 @@ export default function Home({ coupons, slides }) {
           .hero h1 { font-size:28px; }
           .hero-stats { gap:20px; }
           .hstat strong { font-size:22px; }
-          .super-section { padding:20px 16px 24px; }
+          .super-section { padding:20px 0 24px; }
+          .super-head { padding:0 16px; }
           .super-title { font-size:18px; }
           .pg-chips { padding:16px 16px 0; }
-          .pg-section { padding:16px 16px 28px; }
-          .pg-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
+          .pg-section { padding:16px 0 28px; }
+          .pg-head { padding:0 16px; }
           .pg-ad-wrap { padding:8px 16px; }
+          .super-grid, .pg-grid {
+            display:flex;
+            flex-direction:row;
+            overflow-x:auto;
+            gap:12px;
+            padding:4px 16px 12px;
+            scrollbar-width:none;
+            -webkit-overflow-scrolling:touch;
+            scroll-snap-type:x mandatory;
+          }
+          .super-grid::-webkit-scrollbar, .pg-grid::-webkit-scrollbar { display:none; }
+          .pg-cell {
+            flex:0 0 72vw;
+            max-width:280px;
+            min-width:240px;
+            scroll-snap-align:start;
+          }
         }
-        @media (max-width:380px) { .pg-grid { grid-template-columns:1fr; } }
       `}</style>
     </Layout>
   );

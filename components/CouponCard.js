@@ -86,36 +86,26 @@ export default function CouponCard({ coupon }) {
 
         {/* FOOTER */}
         <div className="cc-footer">
+          {/* Row 1: code or url action */}
+          {!expired && (
+            <div className="cc-action-row">
+              {coupon.url && (coupon.type === 'קישור להטבה' || coupon.type === 'קוד + קישור' || (!coupon.code && coupon.url)) && (
+                <a href={coupon.url} target="_blank" rel="noopener noreferrer"
+                   className="cc-btn-url" onClick={e => e.stopPropagation()}>
+                  🔗 לקבלת ההטבה
+                </a>
+              )}
+              {coupon.code && coupon.type !== 'קישור להטבה' && (
+                <button className={`cc-code-btn${revealed ? ' rev' : ''}${copied ? ' cop' : ''}`} onClick={handleCode}>
+                  {copied ? '✅ הועתק!' : revealed ? `📋 ${coupon.code}` : '🔑 הצג קוד'}
+                </button>
+              )}
+            </div>
+          )}
+          {/* Row 2: details link */}
           <button className={`cc-btn-main${expired ? ' cc-btn-exp' : ''}`}>
             {expired ? '⏰ פג תוקף' : 'פרטים נוספים →'}
           </button>
-
-          {/* קישור להטבה — when type is url-based */}
-          {coupon.url && !expired && (coupon.type === 'קישור להטבה' || coupon.type === 'קוד + קישור' || !coupon.code) && (
-            <a href={coupon.url} target="_blank" rel="noopener noreferrer"
-               className="cc-btn-url" onClick={e => e.stopPropagation()}>
-              🔗 לקבלת ההטבה
-            </a>
-          )}
-
-          {/* קוד קופון sticker — when type has a code */}
-          {coupon.code && !expired && coupon.type !== 'קישור להטבה' && (
-            <button className={`cc-sticker${revealed ? ' rev' : ''}${copied ? ' cop' : ''}`} onClick={handleCode}>
-              {copied ? (
-                <span className="sticker-copied">✅ הועתק!</span>
-              ) : revealed ? (
-                <span className="sticker-code">{coupon.code}</span>
-              ) : (
-                <span className="sticker-mask">
-                  <span className="sticker-visible">{coupon.code.slice(0,3)}</span>
-                  <span className="sticker-peel">
-                    <span className="sticker-dots">••••</span>
-                    <span className="sticker-tap">הצג</span>
-                  </span>
-                </span>
-              )}
-            </button>
-          )}
         </div>
       </div>
 
@@ -159,168 +149,26 @@ export default function CouponCard({ coupon }) {
         .cc-meta-exp { color: #E53935; }
 
         /* ── FOOTER ── */
-        .cc-footer { padding: 10px 12px; border-top: 1px solid #F5F0EC; display: flex; gap: 7px; flex-shrink: 0; align-items: center; }
-        .cc-btn-main { flex: 1; background: #1A1A2E; color: #fff; border-radius: 9px; padding: 9px 6px; font-size: 12px; font-weight: 800; text-align: center; transition: background .18s; border: none; cursor: pointer; font-family: 'Heebo', sans-serif; white-space: nowrap; }
+        .cc-footer { padding: 10px 12px 12px; border-top: 1px solid #F5F0EC; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+        .cc-action-row { display: flex; }
+        .cc-btn-url { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; background:linear-gradient(135deg,#1565C0,#1976D2); color:#fff; border-radius:9px; padding:9px 12px; font-size:12px; font-weight:800; white-space:nowrap; text-decoration:none; transition:all .18s; font-family:'Heebo',sans-serif; }
+        .cc-btn-url:hover { background:linear-gradient(135deg,#0D47A1,#1565C0); }
+        .cc-code-btn { width:100%; background:#F5F0EC; color:#1A1A2E; border:none; border-radius:9px; padding:9px 12px; font-size:12px; font-weight:800; cursor:pointer; transition:all .18s; font-family:'Heebo',sans-serif; text-align:center; }
+        .cc-code-btn:hover { background:#E8321A; color:#fff; }
+        .cc-code-btn.rev { background:#FFF3E0; color:#E65100; border:1.5px dashed #E65100; font-family:'Rubik',sans-serif; letter-spacing:1px; }
+        .cc-code-btn.rev:hover { background:#E65100; color:#fff; }
+        .cc-code-btn.cop { background:#E8F5E9; color:#2E7D32; border:1.5px solid #A5D6A7; }
+        .cc-btn-main { width:100%; background:#1A1A2E; color:#fff; border-radius:9px; padding:9px 6px; font-size:12px; font-weight:800; text-align:center; transition:background .18s; border:none; cursor:pointer; font-family:'Heebo',sans-serif; }
         .cc-btn-main:hover { background: #E8321A; }
         .cc-btn-exp { background: #9E9E9E; cursor: not-allowed; }
-        .cc-btn-link { display:flex; align-items:center; justify-content:center; gap:5px; background:linear-gradient(135deg,#2DB86A,#1a9453); color:#fff; border-radius:9px; padding:0 12px; height:36px; font-size:12px; font-weight:800; font-family:'Heebo',sans-serif; white-space:nowrap; flex-shrink:0; transition:all .18s; text-decoration:none; }
-        .cc-btn-link:hover { background:linear-gradient(135deg,#34d679,#22b560); transform:translateY(-1px); box-shadow:0 4px 14px rgba(45,184,106,.35); }
         .cc-btn-exp:hover { background: #9E9E9E !important; }
-
-        /* ══════════════════════════════
-           STICKER BUTTON
-        ══════════════════════════════ */
-        .cc-btn-url { display:flex; align-items:center; height:36px; padding:0 11px; background:linear-gradient(135deg,#1565C0,#1976D2); color:#fff; border-radius:9px; font-size:11px; font-weight:800; white-space:nowrap; text-decoration:none; transition:all .18s; font-family:'Heebo',sans-serif; flex-shrink:0; gap:4px; }
-        .cc-btn-url:hover { background:linear-gradient(135deg,#0D47A1,#1565C0); transform:scale(1.03); }
-        .cc-sticker {
-          position: relative;
-          border: none;
-          cursor: pointer;
-          border-radius: 9px;
-          padding: 0;
-          background: transparent;
-          font-family: 'Rubik', sans-serif;
-          transition: transform .15s;
-          flex-shrink: 0;
-          height: 36px;
-          display: flex;
-          align-items: stretch;
-        }
-        .cc-sticker:hover { transform: scale(1.05); }
-        .cc-sticker:active { transform: scale(.97); }
-
-        /* STATE: masked */
-        .s-mask {
-          display: flex;
-          align-items: stretch;
-          border-radius: 9px;
-          overflow: hidden;
-          height: 36px;
-          border: 1.5px solid #E8E0D8;
-          box-shadow: 0 2px 6px rgba(0,0,0,.08);
-        }
-        /* visible chars */
-        .s-vis {
-          display: flex;
-          align-items: center;
-          padding: 0 9px;
-          background: #F8F6F3;
-          color: #1A1A2E;
-          font-size: 13px;
-          font-weight: 900;
-          letter-spacing: 1.5px;
-          border-left: 1.5px solid #E8E0D8;
-        }
-        /* hidden chars behind sticker */
-        .s-hidden-wrap {
-          position: relative;
-          display: flex;
-          align-items: center;
-        }
-        .s-hidden-code {
-          display: flex;
-          align-items: center;
-          padding: 0 8px;
-          background: #F8F6F3;
-          color: #1A1A2E;
-          font-size: 13px;
-          font-weight: 900;
-          letter-spacing: 1.5px;
-          filter: blur(3.5px);
-          user-select: none;
-          pointer-events: none;
-        }
-        /* red peel sticker ON TOP of blurred chars */
-        .s-peel {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, #E8321A 0%, #c42810 100%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 4px;
-          padding: 0 10px;
-          border-radius: 0 7px 7px 0;
-          /* torn paper edge on left */
-          box-shadow: -3px 0 6px rgba(0,0,0,.2), inset -1px 0 0 rgba(255,255,255,.1);
-        }
-        /* tiny triangle "peel" corner top-left */
-        .s-peel::before {
-          content: '';
-          position: absolute;
-          top: 0; left: 0;
-          width: 0; height: 0;
-          border-style: solid;
-          border-width: 8px 8px 0 0;
-          border-color: rgba(0,0,0,.25) transparent transparent transparent;
-        }
-        .s-peel-dots {
-          font-size: 11px;
-          color: rgba(255,255,255,.6);
-          letter-spacing: 2px;
-        }
-        .s-peel-label {
-          font-size: 10px;
-          font-weight: 800;
-          color: #fff;
-          text-transform: uppercase;
-          letter-spacing: .5px;
-          background: rgba(255,255,255,.18);
-          padding: 2px 6px;
-          border-radius: 4px;
-        }
-
-        /* STATE: revealed */
-        .s-open {
-          display: flex;
-          align-items: center;
-          height: 36px;
-          border-radius: 9px;
-          overflow: hidden;
-          border: 1.5px dashed #E65100;
-          animation: pop .22s ease;
-        }
-        .s-open-code {
-          padding: 0 10px;
-          background: #FFF3E0;
-          color: #E65100;
-          font-size: 12px;
-          font-weight: 900;
-          letter-spacing: 2px;
-          height: 100%;
-          display: flex;
-          align-items: center;
-        }
-        .s-open-copy {
-          padding: 0 9px;
-          background: #E65100;
-          color: #fff;
-          font-size: 10px;
-          font-weight: 800;
-          height: 100%;
-          display: flex;
-          align-items: center;
-        }
-
-        /* STATE: copied */
-        .s-copied {
-          display: flex;
-          align-items: center;
-          padding: 0 12px;
-          height: 36px;
-          background: #E8F5E9;
-          color: #2E7D32;
-          font-size: 12px;
-          font-weight: 800;
-          border-radius: 9px;
-          border: 1.5px solid #A5D6A7;
-        }
 
         @keyframes pop {
           0%   { transform: scale(.92); }
           60%  { transform: scale(1.05); }
           100% { transform: scale(1); }
         }
+
       `}</style>
     </Link>
   );
