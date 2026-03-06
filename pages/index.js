@@ -196,7 +196,7 @@ export default function Home({ coupons, slides }) {
 
       <style jsx>{`
         /* ── HERO ── */
-        .hero { background: linear-gradient(135deg,#1A1A2E 0%,#2D1B4E 60%,#1A1A2E 100%); padding: 48px 20px 56px; position: relative; overflow: hidden; }
+        .hero { background: linear-gradient(135deg,#1A1A2E 0%,#2D1B4E 60%,#1A1A2E 100%); padding: 48px 40px 56px; position: relative; overflow: hidden; }
         .hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 15% 60%,rgba(232,50,26,.18),transparent 55%); pointer-events:none; }
         .hero::after  { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 80% 20%,rgba(100,60,200,.12),transparent 50%); pointer-events:none; }
         .hero-inner { max-width:1280px; margin:0 auto; position:relative; display:flex; align-items:center; gap:48px; }
@@ -279,7 +279,7 @@ export default function Home({ coupons, slides }) {
         .pg-ad-tag { position:absolute; top:5px; right:10px; background:#C0CFEA; color:#536070; font-size:9px; font-weight:800; text-transform:uppercase; padding:1px 5px; border-radius:3px; }
 
         /* ── CHIPS ── */
-        .pg-chips { padding:20px 20px 0; max-width:1280px; margin:0 auto; }
+        .pg-chips { padding:20px 40px 0; max-width:1280px; margin:0 auto; }
         .chips-scroll { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; scrollbar-width:none; }
         .chips-scroll::-webkit-scrollbar { display:none; }
         .chip { flex-shrink:0; display:flex; align-items:center; gap:6px; background:#fff; border:2px solid #E8E0D8; border-radius:50px; padding:7px 14px; font-size:13px; font-weight:700; color:#1A1A2E; cursor:pointer; white-space:nowrap; transition:all .18s; font-family:'Heebo',sans-serif; }
