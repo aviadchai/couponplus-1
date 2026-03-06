@@ -59,7 +59,6 @@ export default function CouponCard({ coupon }) {
             ? <img src={imgSrc} alt={coupon.name} onError={e => e.target.style.opacity = 0} />
             : <div className="cc-img-fallback"><ChainIcon chain={coupon.chain} size={56} /></div>
           }
-          <div className="cc-img-overlay" />
 
           {/* Discount badge over image */}
           {coupon.discount && !expired && (
@@ -68,7 +67,7 @@ export default function CouponCard({ coupon }) {
 
           {/* Status badge */}
           {expired
-            ? <div className="cc-pill-status exp">EXPIRED</div>
+            ? <div className="cc-pill-status exp">⏰ פג תוקף</div>
             : badgeLabel && <div className="cc-pill-status">{badgeLabel}</div>
           }
         </div>
@@ -137,16 +136,10 @@ export default function CouponCard({ coupon }) {
         }
         .cc-img img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .5s ease; }
         .cc:hover .cc-img img { transform: scale(1.06); }
-        .cc-img-fallback {
           width:100%; height:100%;
           display:flex; align-items:center; justify-content:center;
           background: #F5F1EE;
         }
-        .cc-img-overlay {
-          position:absolute; inset:0;
-          background: linear-gradient(to top, rgba(0,0,0,.45) 0%, transparent 55%);
-        }
-
         /* PILLS */
         .cc-pill-discount {
           position:absolute; bottom:10px; right:12px;
