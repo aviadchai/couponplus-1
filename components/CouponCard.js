@@ -1,32 +1,39 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
-const CHAIN_COLORS = {
-  'רמי לוי':    { accent: '#C8921A', bg: '#1C1A14', emoji: '🛒' },
-  'שופרסל':     { accent: '#1A8C4E', bg: '#101C14', emoji: '🧴' },
-  'מגה':        { accent: '#1A5FB5', bg: '#0E1420', emoji: '🥩' },
-  'ויקטורי':    { accent: '#B52A2A', bg: '#1C1010', emoji: '🥛' },
-  'יינות ביתן': { accent: '#7C3FA8', bg: '#150E1C', emoji: '🍷' },
-  'חצי חינם':   { accent: '#C87820', bg: '#1C1710', emoji: '🏷️' },
-  'סופר-פארם':  { accent: '#8B2AB0', bg: '#160E1C', emoji: '💊' },
-  'KSP':        { accent: '#2A6DB5', bg: '#0E1520', emoji: '📱' },
-  'לליין':      { accent: '#B54A1A', bg: '#1C1210', emoji: '💄' },
-  'Wolt':       { accent: '#1AA0C8', bg: '#0E1820', emoji: '🛵' },
+const CHAIN_META = {
+  'רמי לוי':    { accent: '#D4931A', bg: '#1C180E' },
+  'שופרסל':     { accent: '#22A05A', bg: '#0F1C13' },
+  'מגה':        { accent: '#2B6FD4', bg: '#0D1520' },
+  'ויקטורי':    { accent: '#D43A2B', bg: '#1C100E' },
+  'יינות ביתן': { accent: '#9B4FC8', bg: '#160E1C' },
+  'חצי חינם':   { accent: '#D47A1A', bg: '#1C1610' },
+  'סופר-פארם':  { accent: '#9B30CC', bg: '#160E1C' },
+  'KSP':        { accent: '#2B74D4', bg: '#0D1520' },
+  'לליין':      { accent: '#CC4A1A', bg: '#1C1210' },
+  'Wolt':       { accent: '#1AACD4', bg: '#0E181C' },
 };
-const DEFAULT_CHAIN = { accent: '#C84A1A', bg: '#1C1210', emoji: '🎫' };
-const BADGE_MAP = {
-  'חם':    { label: 'HOT' },
-  'חדש':   { label: 'NEW' },
-  'מוגבל': { label: 'LIMITED' },
+const DEFAULT_META = { accent: '#CC4A1A', bg: '#1C1210' };
+
+const BADGE_LABEL = { 'חם': 'HOT', 'חדש': 'NEW', 'מוגבל': 'LIMITED' };
+
+// Placeholder images per category
+const CATEGORY_IMG = {
+  'סופרמרקט': 'https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=600&q=80',
+  'פארם ובריאות': 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&q=80',
+  'אלקטרוניקה': 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=600&q=80',
+  'טיפוח וקוסמטיקה': 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600&q=80',
+  'בית ומטבח': 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80',
+  'אופנה': 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&q=80',
 };
 
 export function AdCard() {
   return (
     <div className="cc-ad">
-      <span className="cc-ad-tag">AD</span>
+      <span className="cc-ad-lbl">AD</span>
       <style jsx>{`
-        .cc-ad { background: #F7F5F2; border: 1px solid #E8E2D9; border-radius: 16px; min-height: 300px; display:flex; align-items:center; justify-content:center; position:relative; width:100%; }
-        .cc-ad-tag { font-size:9px; font-weight:700; color:#BDB6AC; letter-spacing:2px; text-transform:uppercase; }
+        .cc-ad { background:#F4F1EE; border:1px solid #E8E2DA; border-radius:20px; min-height:320px; display:flex; align-items:center; justify-content:center; position:relative; width:100%; }
+        .cc-ad-lbl { font-size:9px; font-weight:700; color:#C0B8B0; letter-spacing:2px; text-transform:uppercase; }
       `}</style>
     </div>
   );
@@ -35,13 +42,13 @@ export function AdCard() {
 export default function CouponCard({ coupon }) {
   const [revealed, setRevealed] = useState(false);
   const [copied,   setCopied]   = useState(false);
-  const chain   = CHAIN_COLORS[coupon.chain] || DEFAULT_CHAIN;
-  const badge   = BADGE_MAP[coupon.badge];
+  const meta    = CHAIN_META[coupon.chain] || DEFAULT_META;
   const expired = coupon.expired;
+  const badgeLabel = BADGE_LABEL[coupon.badge];
+  const imgSrc = coupon.image || CATEGORY_IMG[coupon.category] || null;
 
   function handleCode(e) {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     if (expired) return;
     if (!revealed) { setRevealed(true); return; }
     navigator.clipboard.writeText(coupon.code).catch(() => {});
@@ -50,245 +57,218 @@ export default function CouponCard({ coupon }) {
   }
 
   return (
-    <Link href={`/coupon/${coupon.id}`} style={{ textDecoration: 'none', display: 'block', width: '100%' }}>
-      <div className={`cc-card${expired ? ' cc-expired' : ''}`} style={{ '--accent': chain.accent, '--bg': chain.bg }}>
+    <Link href={`/coupon/${coupon.id}`} style={{ textDecoration:'none', display:'block', width:'100%' }}>
+      <div className={`cc${expired ? ' cc-exp' : ''}`} style={{ '--accent': meta.accent, '--cbg': meta.bg }}>
 
-        {/* IMAGE AREA */}
+        {/* ── IMAGE ── */}
         <div className="cc-img">
-          {coupon.image
-            ? <img src={coupon.image} alt={coupon.name}
-                onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
-            : null}
-          <div className="cc-emoji-wrap" style={{ display: coupon.image ? 'none' : 'flex' }}>
-            <span className="cc-emoji">{chain.emoji}</span>
-          </div>
+          {imgSrc
+            ? <img src={imgSrc} alt={coupon.name} onError={e => e.target.style.opacity = 0} />
+            : <div className="cc-img-fallback"><span>{coupon.chain?.[0] || '✂'}</span></div>
+          }
+          <div className="cc-img-overlay" />
 
-          {/* Discount pill — top left */}
+          {/* Discount badge over image */}
           {coupon.discount && !expired && (
-            <div className="cc-discount">{coupon.discount}</div>
+            <div className="cc-pill-discount">{coupon.discount}</div>
           )}
 
-          {/* Badge — top right */}
-          {!expired && badge && (
-            <div className="cc-badge">{badge.label}</div>
-          )}
-          {expired && <div className="cc-badge cc-badge-exp">EXPIRED</div>}
+          {/* Status badge */}
+          {expired
+            ? <div className="cc-pill-status exp">EXPIRED</div>
+            : badgeLabel && <div className="cc-pill-status">{badgeLabel}</div>
+          }
         </div>
 
-        {/* BODY */}
-        <div className="cc-body">
-          <div className="cc-chain-name">{coupon.chain}</div>
-          <div className="cc-title">{coupon.name}</div>
+        {/* ── INFO ── */}
+        <div className="cc-info">
+          <div className="cc-chain">{coupon.chain}</div>
+          <div className="cc-name">{coupon.name}</div>
           {coupon.expiry && (
-            <div className={`cc-expiry${expired ? ' cc-expiry-exp' : ''}`}>
-              {expired ? `פג תוקף ${coupon.expiry}` : `עד ${coupon.expiry}`}
+            <div className={`cc-date${expired ? ' cc-date-exp' : ''}`}>
+              {expired ? `פג ${coupon.expiry}` : `עד ${coupon.expiry}`}
             </div>
           )}
         </div>
 
-        {/* FOOTER */}
-        <div className="cc-footer">
+        {/* ── ACTIONS ── */}
+        <div className="cc-actions">
           {!expired ? (
             <>
               {coupon.code && coupon.type !== 'קישור להטבה' && (
-                <button className={`cc-code-btn${revealed ? ' rev' : ''}${copied ? ' cop' : ''}`} onClick={handleCode}>
-                  <span className="cc-code-inner">
-                    {copied ? '✓ הועתק' : revealed ? coupon.code : 'הצג קוד'}
-                  </span>
+                <button
+                  className={`cc-code${revealed ? ' rev' : ''}${copied ? ' cop' : ''}`}
+                  onClick={handleCode}
+                >
+                  {copied ? '✓ הועתק' : revealed ? coupon.code : 'הצג קוד'}
                 </button>
               )}
-              {coupon.url && (coupon.type === 'קישור להטבה' || coupon.type === 'קוד + קישור' || (!coupon.code && coupon.url)) && (
+              {coupon.url && (coupon.type === 'קישור להטבה' || coupon.type === 'קוד + קישור' || (!coupon.code)) && (
                 <a href={coupon.url} target="_blank" rel="noopener noreferrer"
-                   className="cc-url-btn" onClick={e => e.stopPropagation()}>
-                  לקבלת ההטבה ↗
+                   className="cc-cta-url" onClick={e => e.stopPropagation()}>
+                  לקבלת ההטבה
                 </a>
               )}
-              <button className="cc-details-btn">פרטים</button>
+              <Link href={`/coupon/${coupon.id}`} className="cc-cta">
+                פרטים ←
+              </Link>
             </>
           ) : (
-            <button className="cc-details-btn cc-details-exp">פג תוקף</button>
+            <div className="cc-cta cc-cta-dead">פג תוקף</div>
           )}
         </div>
 
       </div>
 
       <style jsx>{`
-        .cc-card {
+        .cc {
           background: #fff;
-          border-radius: 16px;
-          border: 1px solid #ECDDD0;
+          border-radius: 20px;
+          border: 1px solid #EDE8E2;
+          overflow: hidden;
           display: flex;
           flex-direction: column;
-          overflow: hidden;
           width: 100%;
           height: 100%;
           min-height: 300px;
-          transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
-          box-shadow: 0 1px 4px rgba(0,0,0,.05);
+          transition: transform .22s ease, box-shadow .22s ease;
+          box-shadow: 0 2px 8px rgba(0,0,0,.05);
         }
-        .cc-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 32px rgba(0,0,0,.10);
-          border-color: var(--accent);
-        }
-        .cc-expired { opacity: .45; filter: grayscale(1); pointer-events: none; }
+        .cc:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,0,0,.10); }
+        .cc-exp { opacity: .4; filter: grayscale(1); pointer-events: none; }
 
         /* IMAGE */
         .cc-img {
-          width: 100%;
-          height: 148px;
           position: relative;
+          height: 160px;
           overflow: hidden;
-          background: var(--bg);
           flex-shrink: 0;
+          background: var(--cbg);
         }
         .cc-img img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .5s ease; }
-        .cc-card:hover .cc-img img { transform: scale(1.05); }
-        .cc-emoji-wrap {
-          width: 100%; height: 100%;
-          display: flex; align-items: center; justify-content: center;
-          background: var(--bg);
+        .cc:hover .cc-img img { transform: scale(1.06); }
+        .cc-img-fallback {
+          width:100%; height:100%;
+          display:flex; align-items:center; justify-content:center;
+          background: var(--cbg);
+          font-size: 52px; font-weight: 900;
+          color: rgba(255,255,255,.15);
+          font-family: 'Rubik', sans-serif;
         }
-        .cc-emoji { font-size: 52px; opacity: .85; }
+        .cc-img-overlay {
+          position:absolute; inset:0;
+          background: linear-gradient(to top, rgba(0,0,0,.45) 0%, transparent 55%);
+        }
 
-        /* DISCOUNT */
-        .cc-discount {
-          position: absolute;
-          bottom: 10px;
-          right: 10px;
+        /* PILLS */
+        .cc-pill-discount {
+          position:absolute; bottom:10px; right:12px;
           background: var(--accent);
           color: #fff;
           font-family: 'Rubik', sans-serif;
-          font-size: 15px;
-          font-weight: 900;
-          padding: 4px 10px;
-          border-radius: 8px;
-          letter-spacing: .3px;
+          font-size: 14px; font-weight: 900;
+          padding: 3px 10px; border-radius: 8px;
+          letter-spacing: .2px;
         }
-
-        /* BADGE */
-        .cc-badge {
-          position: absolute;
-          top: 10px;
-          left: 10px;
-          background: rgba(0,0,0,.55);
+        .cc-pill-status {
+          position:absolute; top:10px; left:10px;
+          background: rgba(0,0,0,.5);
           backdrop-filter: blur(8px);
           color: #fff;
-          font-size: 9px;
-          font-weight: 800;
-          letter-spacing: 1.5px;
-          text-transform: uppercase;
-          padding: 3px 8px;
-          border-radius: 5px;
-          border: 1px solid rgba(255,255,255,.15);
+          font-size: 9px; font-weight: 800;
+          letter-spacing: 1.8px; text-transform: uppercase;
+          padding: 3px 8px; border-radius: 5px;
+          border: 1px solid rgba(255,255,255,.12);
         }
-        .cc-badge-exp { background: rgba(80,80,80,.6); }
+        .cc-pill-status.exp { background: rgba(50,50,50,.6); }
 
-        /* BODY */
-        .cc-body { padding: 14px 14px 8px; flex: 1; }
-        .cc-chain-name {
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 1.5px;
-          text-transform: uppercase;
+        /* INFO */
+        .cc-info { padding: 14px 14px 6px; flex: 1; }
+        .cc-chain {
+          font-size: 10px; font-weight: 700;
+          letter-spacing: 1.8px; text-transform: uppercase;
           color: var(--accent);
           margin-bottom: 5px;
         }
-        .cc-title {
-          font-size: 13px;
-          font-weight: 600;
-          color: #1A1A2E;
-          line-height: 1.45;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
+        .cc-name {
+          font-size: 13.5px; font-weight: 600;
+          color: #1A1A1A; line-height: 1.45;
+          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
           margin-bottom: 6px;
         }
-        .cc-expiry { font-size: 11px; color: #A09890; }
-        .cc-expiry-exp { color: #C0392B; }
+        .cc-date { font-size: 11px; color: #B0A89E; }
+        .cc-date-exp { color: #D04030; }
 
-        /* FOOTER */
-        .cc-footer {
-          padding: 10px 12px 12px;
-          border-top: 1px solid #F0EAE4;
-          display: flex;
-          gap: 7px;
-          flex-shrink: 0;
-          align-items: stretch;
+        /* ACTIONS */
+        .cc-actions {
+          padding: 10px 12px 13px;
+          border-top: 1px solid #F0EBE4;
+          display: flex; gap: 7px; align-items: stretch;
         }
 
-        /* CODE BTN */
-        .cc-code-btn {
-          flex: 1;
-          border: 1.5px solid #E0D8D0;
-          background: #FAF7F4;
-          border-radius: 9px;
+        /* Code button */
+        .cc-code {
+          flex: 1; min-width: 0;
+          background: #F5F1ED;
+          border: 1.5px solid #E5DED5;
+          border-radius: 10px;
+          padding: 8px 10px;
+          font-size: 11px; font-weight: 700;
+          color: #3A3028;
           cursor: pointer;
           transition: all .18s;
-          padding: 0;
-          overflow: hidden;
           font-family: 'Rubik', sans-serif;
-          min-width: 0;
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+          letter-spacing: .3px;
         }
-        .cc-code-btn:hover { border-color: var(--accent); background: #fff; }
-        .cc-code-inner {
-          display: block;
-          padding: 8px 10px;
-          font-size: 11px;
-          font-weight: 700;
-          color: #3A3028;
-          letter-spacing: .5px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .cc-code-btn.rev .cc-code-inner {
+        .cc-code:hover { border-color: var(--accent); color: var(--accent); background: #fff; }
+        .cc-code.rev {
+          background: #fff;
+          border-color: var(--accent);
           color: var(--accent);
           letter-spacing: 1.5px;
           font-size: 12px;
           font-weight: 900;
         }
-        .cc-code-btn.cop { border-color: #27AE60; background: #F0FBF4; }
-        .cc-code-btn.cop .cc-code-inner { color: #27AE60; }
+        .cc-code.cop { background: #F0FAF4; border-color: #27AE60; color: #27AE60; }
 
-        /* URL BTN */
-        .cc-url-btn {
+        /* URL CTA */
+        .cc-cta-url {
           flex: 1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          display: flex; align-items: center; justify-content: center;
           background: var(--accent);
           color: #fff;
-          border-radius: 9px;
+          border-radius: 10px;
           padding: 8px 10px;
-          font-size: 11px;
-          font-weight: 700;
+          font-size: 11px; font-weight: 700;
           text-decoration: none;
           transition: opacity .18s;
-          white-space: nowrap;
           font-family: 'Heebo', sans-serif;
+          white-space: nowrap;
         }
-        .cc-url-btn:hover { opacity: .85; }
+        .cc-cta-url:hover { opacity: .85; }
 
-        /* DETAILS BTN */
-        .cc-details-btn {
+        /* Details CTA */
+        .cc-cta {
           flex-shrink: 0;
+          display: flex; align-items: center; justify-content: center;
           background: #1A1A2E;
           color: #fff;
-          border: none;
-          border-radius: 9px;
-          padding: 8px 12px;
-          font-size: 11px;
-          font-weight: 700;
+          border: none; border-radius: 10px;
+          padding: 8px 13px;
+          font-size: 11px; font-weight: 700;
           cursor: pointer;
           transition: background .18s;
           font-family: 'Heebo', sans-serif;
           white-space: nowrap;
+          text-decoration: none;
         }
-        .cc-details-btn:hover { background: var(--accent); }
-        .cc-details-exp { background: #C0C0C0; cursor: default; flex: 1; }
-        .cc-details-exp:hover { background: #C0C0C0 !important; }
+        .cc-cta:hover { background: var(--accent); }
+        .cc-cta-dead {
+          flex: 1; background: #D8D4D0; cursor: default;
+          display:flex; align-items:center; justify-content:center;
+          border-radius:10px; padding:8px; font-size:11px; font-weight:700; color:#fff;
+        }
       `}</style>
     </Link>
   );
