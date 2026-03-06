@@ -10,12 +10,13 @@ const NAV_LINKS = [
 ];
 
 const FOOTER_CATS = [
-  { href: '/deals',                        label: '🔥 כל המבצעים' },
-  { href: '/pharm',                        label: '💊 פארם ובריאות' },
-  { href: '/category/סופרמרקט',           label: '🛍️ סופרמרקט' },
-  { href: '/category/טיפוח וקוסמטיקה',   label: '💄 טיפוח' },
-  { href: '/category/אלקטרוניקה',         label: '📱 אלקטרוניקה' },
-  { href: '/international',               label: '🌍 בינלאומי' },
+  { href: '/deals',                        label: 'כל המבצעים' },
+  { href: '/pharm',                        label: 'פארם ובריאות' },
+  { href: '/category/סופרמרקט',           label: 'סופרמרקט' },
+  { href: '/category/טיפוח וקוסמטיקה',   label: 'טיפוח' },
+  { href: '/category/אלקטרוניקה',         label: 'אלקטרוניקה' },
+  { href: '/international',               label: 'בינלאומי' },
+  { href: '/category/קופוני-מוצר',        label: 'קופוני מוצר' },
 ];
 
 const SUB_CATS = [
@@ -28,6 +29,7 @@ const SUB_CATS = [
   { href: '/category/בית ומטבח',         label: '🏠 בית ומטבח' },
   { href: '/category/אופנה',             label: '👗 אופנה' },
   { href: '/category/חיות מחמד',         label: '🐾 חיות מחמד' },
+  { href: '/category/קופוני-מוצר',       label: '🎟️ קופוני מוצר' },
   { href: '/international',              label: '🌍 בינלאומי' },
 ];
 
@@ -56,7 +58,7 @@ export default function Layout({ children }) {
         <div className="header-inner">
           <Link href="/" className="logo">קופון<span>+</span></Link>
 
-          {/* Desktop nav */}
+          {/* Desktop nav — right after logo */}
           <nav className="desk-nav">
             {NAV_LINKS.map(l => (
               <Link key={l.href} href={l.href} className={`nav-link${isActive(l.href) ? ' active' : ''}`}>
@@ -64,6 +66,9 @@ export default function Layout({ children }) {
               </Link>
             ))}
           </nav>
+
+          {/* spacer pushes burger to left on mobile */}
+          <div className="header-spacer" />
 
           {/* Hamburger */}
           <button className="burger" onClick={() => setOpen(!open)} aria-label="תפריט">
@@ -170,14 +175,15 @@ export default function Layout({ children }) {
 
         /* HEADER */
         header { background: var(--white); border-bottom: 1px solid var(--gray2); position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
-        .header-inner { max-width: 1280px; margin: 0 auto; padding: 0 20px; height: 64px; display: flex; align-items: center; gap: 20px; }
-        .logo { font-family: 'Rubik', sans-serif; font-size: 26px; font-weight: 900; color: var(--navy); flex-shrink: 0; }
+        .header-inner { max-width: 1280px; margin: 0 auto; padding: 0 40px; height: 64px; display: flex; align-items: center; gap: 4px; }
+        .logo { font-family: 'Rubik', sans-serif; font-size: 26px; font-weight: 900; color: var(--navy); flex-shrink: 0; margin-left: 8px; }
         .logo span { color: var(--red); }
-        .desk-nav { display: flex; gap: 2px; margin-right: auto; }
+        .desk-nav { display: flex; gap: 2px; flex-shrink: 0; }
+        .header-spacer { flex: 1; }
         .nav-link { padding: 8px 14px; border-radius: 10px; font-size: 14px; font-weight: 600; color: var(--muted); transition: all .18s; white-space: nowrap; }
         .nav-link:hover { background: var(--gray); color: var(--navy); }
         .nav-link.active { background: var(--red); color: #fff; }
-        .burger { display: none; font-size: 22px; color: var(--navy); padding: 8px; border-radius: 8px; margin-right: auto; line-height: 1; }
+        .burger { display: none; font-size: 22px; color: var(--navy); padding: 8px; border-radius: 8px; line-height: 1; flex-shrink: 0; }
 
         /* MOBILE MENU */
         .mob-menu { position: absolute; top: 64px; right: 0; left: 0; background: var(--white); border-bottom: 2px solid var(--gray2); box-shadow: 0 8px 24px rgba(0,0,0,.12); z-index: 199; padding: 8px 0 16px; max-height: 80vh; overflow-y: auto; }
@@ -191,7 +197,7 @@ export default function Layout({ children }) {
 
         /* SUBNAV */
         .subnav { background: #fff; border-bottom: 1px solid var(--gray2); }
-        .subnav-inner { max-width: 1280px; margin: 0 auto; padding: 0 20px; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .subnav-inner { max-width: 1280px; margin: 0 auto; padding: 0 40px; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
         .subnav-inner::-webkit-scrollbar { display: none; }
         .subnav-item { flex-shrink: 0; padding: 9px 12px; font-size: 12.5px; font-weight: 600; color: var(--muted); white-space: nowrap; border-bottom: 2px solid transparent; transition: all .18s; }
         .subnav-item:hover { color: var(--navy); border-bottom-color: var(--gray2); }
@@ -222,14 +228,14 @@ export default function Layout({ children }) {
         .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
 
         /* SECTION wrapper */
-        .section { padding: 24px 20px 32px; max-width: 1280px; margin: 0 auto; }
+        .section { padding: 24px 40px 32px; max-width: 1280px; margin: 0 auto; }
         .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .section-title { font-family: 'Rubik', sans-serif; font-size: 20px; font-weight: 900; color: var(--navy); display: flex; align-items: center; gap: 10px; }
         .section-title .dot { width: 6px; height: 24px; background: var(--red); border-radius: 3px; flex-shrink: 0; }
         .no-results { text-align: center; color: var(--muted); padding: 40px; font-size: 16px; grid-column: 1/-1; }
 
         /* AD STRIP */
-        .ad-wrap { padding: 10px 20px; max-width: 1280px; margin: 0 auto; }
+        .ad-wrap { padding: 10px 40px; max-width: 1280px; margin: 0 auto; }
         .ad-strip { background: #F0F4FF; border: 1.5px dashed #C0CFEA; border-radius: 12px; padding: 14px 20px; display: flex; align-items: center; justify-content: center; gap: 12px; position: relative; min-height: 60px; }
         .ad-tag { position: absolute; top: 6px; right: 10px; background: #C0CFEA; color: #536070; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 2px 6px; border-radius: 3px; }
 
@@ -244,6 +250,7 @@ export default function Layout({ children }) {
           .sep { display: none; }
           .header-inner { padding: 0 16px; height: 58px; }
           .desk-nav { display: none; }
+          .header-spacer { display: none; }
           .burger { display: flex; align-items: center; justify-content: center; }
           .logo { font-size: 22px; }
           .ft-top { grid-template-columns: 1fr; gap: 24px; }
@@ -253,6 +260,7 @@ export default function Layout({ children }) {
           .bot-nav { display: flex; }
           .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
           .section { padding: 16px; }
+          .subnav-inner { padding: 0 12px; }
           .ad-wrap { padding: 8px 16px; }
         }
         @media (max-width: 380px) {

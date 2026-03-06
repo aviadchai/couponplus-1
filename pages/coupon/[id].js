@@ -201,14 +201,14 @@ export default function CouponPage({ coupon, related }) {
         .expired-banner { position:absolute; inset:0; background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:900; color:#fff; }
 
         /* Info */
-        .info { padding:28px 28px 28px 0; display:flex; flex-direction:column; gap:16px; }
+        .info { padding:28px 28px 28px 0; display:flex; flex-direction:column; gap:18px; }
         .chain-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
         .chain-name { font-size:13px; font-weight:800; letter-spacing:.5px; }
         .badge-pill { background:#FFF0EE; color:#D42B0F; font-size:11px; font-weight:800; padding:3px 10px; border-radius:20px; }
         .badge-exp { background:#EEE; color:#777; font-size:11px; font-weight:800; padding:3px 10px; border-radius:20px; }
-        h1 { font-family:'Rubik',sans-serif; font-size:26px; font-weight:900; color:#1A1A2E; line-height:1.3; }
+        h1 { font-family:'Rubik',sans-serif; font-size:26px; font-weight:900; color:#1A1A2E; line-height:1.3; margin-bottom: 8px; }
         .title-exp { color:#9E9E9E; text-decoration:line-through; }
-        .discount-big { font-family:'Rubik',sans-serif; font-size:42px; font-weight:900; line-height:1; }
+        .discount-big { font-family:'Rubik',sans-serif; font-size:42px; font-weight:900; line-height:1; margin-bottom: 4px; }
 
         /* Meta */
         .meta-list { display:flex; flex-direction:column; gap:7px; }
