@@ -5,6 +5,7 @@ import Layout from '../components/Layout';
 import CouponCard from '../components/CouponCard';
 import HeroSlider from '../components/HeroSlider';
 import ChainIcon from '../components/ChainIcon';
+import ShoppingPanel from '../components/ShoppingPanel';
 
 const CATEGORIES = [
   { key: 'all',              label: '🛒 הכל' },
@@ -133,6 +134,19 @@ export default function Home({ coupons, slides }) {
         </div>
       </section>
 
+      {/* ══ PASSOVER BANNER ══ */}
+      <div className="passover-banner">
+        <div className="passover-inner">
+          <div className="passover-icons">🍷 🫓 🌿 🕍</div>
+          <div className="passover-text">
+            <div className="passover-tag">חג פסח שמח!</div>
+            <h2>מבצעי פסח — הכל במקום אחד</h2>
+            <p>קופונים וחסכונות לחג מכל הרשתות הגדולות</p>
+          </div>
+          <a href="/passover" className="passover-cta">לכל מבצעי הפסח ←</a>
+        </div>
+      </div>
+
       {/* ══ SUPER RESULTS ══ */}
       <div className="super-section" id="super-results">
         <div className="super-head">
@@ -189,6 +203,9 @@ export default function Home({ coupons, slides }) {
         </div>
       </div>
 
+      {/* ══ SHOPPING PANEL ══ */}
+      <ShoppingPanel allCoupons={coupons} />
+
       {/* ══ AD BOTTOM ══ */}
       <div className="pg-ad-wrap">
         <div className="pg-ad"><span className="pg-ad-tag">פרסומת</span><span>🎯</span><b>Google Ads — 728×90</b></div>
@@ -196,10 +213,10 @@ export default function Home({ coupons, slides }) {
 
       <style jsx>{`
         /* ── HERO ── */
-        .hero { background: linear-gradient(135deg,#1A1A2E 0%,#2D1B4E 60%,#1A1A2E 100%); padding: 48px 40px 56px; position: relative; overflow: hidden; }
+        .hero { background: linear-gradient(135deg,#1A1A2E 0%,#2D1B4E 60%,#1A1A2E 100%); padding: 48px 0 56px; position: relative; overflow: hidden; }
         .hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 15% 60%,rgba(232,50,26,.18),transparent 55%); pointer-events:none; }
         .hero::after  { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 80% 20%,rgba(100,60,200,.12),transparent 50%); pointer-events:none; }
-        .hero-inner { max-width:1280px; margin:0 auto; position:relative; display:flex; align-items:center; gap:48px; }
+        .hero-inner { max-width:1280px; margin:0 auto; padding:0 var(--pad); position:relative; display:flex; align-items:center; gap:48px; }
         .hero-copy { flex:1; min-width:0; }
         .hero-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); border-radius:50px; padding:5px 16px; font-size:12px; font-weight:700; color:rgba(255,255,255,.65); margin-bottom:16px; }
         .hero-badge span { color:#FF5A3D; }
@@ -263,8 +280,68 @@ export default function Home({ coupons, slides }) {
         .hg-clear { margin-top:12px; width:100%; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); border-radius:10px; padding:8px; font-size:12px; font-weight:700; color:rgba(255,255,255,.6); cursor:pointer; transition:all .18s; font-family:'Heebo',sans-serif; }
         .hg-clear:hover { background:rgba(255,255,255,.14); color:#fff; }
 
+        /* ── PASSOVER BANNER ── */
+        .passover-banner {
+          background: linear-gradient(135deg, #F9EFD0 0%, #FDF3DC 60%, #F5E4B0 100%);
+          border-top: 3px solid #C8933A;
+          border-bottom: 3px solid #C8933A;
+          padding: 28px 0;
+          position: relative;
+          overflow: hidden;
+        }
+        .passover-banner::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(ellipse at 90% 50%, rgba(200,147,58,.12), transparent 60%);
+          pointer-events: none;
+        }
+        .passover-inner {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 0 var(--pad);
+          display: flex;
+          align-items: center;
+          gap: 24px;
+          flex-wrap: wrap;
+        }
+        .passover-icons { font-size: 36px; line-height: 1; flex-shrink: 0; }
+        .passover-text { flex: 1; min-width: 200px; }
+        .passover-tag {
+          display: inline-block;
+          background: #C8933A;
+          border-radius: 50px;
+          padding: 3px 14px;
+          font-size: 12px;
+          font-weight: 700;
+          color: #fff;
+          margin-bottom: 8px;
+        }
+        .passover-text h2 {
+          font-family: 'Rubik', sans-serif;
+          font-size: 22px;
+          font-weight: 900;
+          color: #7A4F10;
+          margin-bottom: 4px;
+        }
+        .passover-text p { font-size: 13px; color: #9A6B2A; }
+        .passover-cta {
+          flex-shrink: 0;
+          background: #C8933A;
+          color: #fff;
+          border-radius: 50px;
+          padding: 11px 24px;
+          font-size: 14px;
+          font-weight: 800;
+          white-space: nowrap;
+          transition: all .2s;
+          font-family: 'Heebo', sans-serif;
+          box-shadow: 0 4px 14px rgba(200,147,58,.35);
+        }
+        .passover-cta:hover { background: #A8731A; transform: translateY(-2px); }
+
         /* ── SUPER RESULTS SECTION ── */
-        .super-section { padding:28px 20px 32px; max-width:1280px; margin:0 auto; }
+        .super-section { padding:28px var(--pad) 32px; max-width:1280px; margin:0 auto; }
         .super-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
         .super-title { font-family:'Rubik',sans-serif; font-size:22px; font-weight:900; color:#1A1A2E; display:flex; align-items:center; gap:10px; }
         .super-bar { width:6px; height:26px; background:linear-gradient(180deg,#E8321A,#FF5A3D); border-radius:3px; display:block; flex-shrink:0; }
@@ -274,12 +351,12 @@ export default function Home({ coupons, slides }) {
         .super-empty p { font-size:15px; }
 
         /* ── AD ── */
-        .pg-ad-wrap { padding:10px 20px; max-width:1280px; margin:0 auto; }
+        .pg-ad-wrap { padding:10px var(--pad); max-width:1280px; margin:0 auto; }
         .pg-ad { background:#F0F4FF; border:1.5px dashed #C0CFEA; border-radius:10px; padding:14px 20px; display:flex; align-items:center; justify-content:center; gap:10px; position:relative; font-size:13px; color:#536070; }
         .pg-ad-tag { position:absolute; top:5px; right:10px; background:#C0CFEA; color:#536070; font-size:9px; font-weight:800; text-transform:uppercase; padding:1px 5px; border-radius:3px; }
 
         /* ── CHIPS ── */
-        .pg-chips { padding:20px 40px 0; max-width:1280px; margin:0 auto; }
+        .pg-chips { padding:20px var(--pad) 0; max-width:1280px; margin:0 auto; }
         .chips-scroll { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; scrollbar-width:none; }
         .chips-scroll::-webkit-scrollbar { display:none; }
         .chip { flex-shrink:0; display:flex; align-items:center; gap:6px; background:#fff; border:2px solid #E8E0D8; border-radius:50px; padding:7px 14px; font-size:13px; font-weight:700; color:#1A1A2E; cursor:pointer; white-space:nowrap; transition:all .18s; font-family:'Heebo',sans-serif; }
@@ -291,7 +368,7 @@ export default function Home({ coupons, slides }) {
         .super-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:16px; }
 
         /* ── MAIN GRID ── */
-        .pg-section { padding:24px 20px 32px; max-width:1280px; margin:0 auto; }
+        .pg-section { padding:24px var(--pad) 32px; max-width:1280px; margin:0 auto; }
         .pg-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
         .pg-title { font-family:'Rubik',sans-serif; font-size:20px; font-weight:900; color:#1A1A2E; display:flex; align-items:center; gap:10px; }
         .pg-bar { width:6px; height:24px; background:#E8321A; border-radius:3px; display:block; flex-shrink:0; }
@@ -303,17 +380,15 @@ export default function Home({ coupons, slides }) {
         /* ── RESPONSIVE ── */
         @media (max-width:960px) { .hero-glass { display:none; } .hero h1 { font-size:36px; } }
         @media (max-width:600px) {
-          .hero { padding:32px 16px 40px; }
+          .hero { padding:32px 0 40px; }
           .hero h1 { font-size:28px; }
           .hero-stats { gap:20px; }
           .hstat strong { font-size:22px; }
-          .super-section { padding:20px 0 24px; }
-          .super-head { padding:0 16px; }
+          .super-section { padding:20px var(--pad) 24px; }
           .super-title { font-size:18px; }
-          .pg-chips { padding:16px 16px 0; }
-          .pg-section { padding:16px 0 28px; }
-          .pg-head { padding:0 16px; }
-          .pg-ad-wrap { padding:8px 16px; }
+          .pg-chips { padding:16px var(--pad) 0; }
+          .pg-section { padding:16px var(--pad) 28px; }
+          .pg-ad-wrap { padding:8px var(--pad); }
           .super-grid, .pg-grid {
             display:flex;
             flex-direction:row;

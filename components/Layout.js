@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createClient } from '../lib/supabase';
 import {
   IconDeals, IconSupermarket, IconPharm, IconBeauty, IconToiletries,
   IconElectronics, IconHome, IconFashion, IconPets, IconCouponProduct, IconInternational
@@ -41,9 +42,36 @@ const SUB_CATS = [
   { href: '/international',              label: 'בינלאומי',     Icon: IconInternational },
 ];
 
-export default function Layout({ children }) {
+export default function Layout({ children, minimal = false }) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [open,        setOpen]        = useState(false);
+  const [user,        setUser]        = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setUser(data?.session?.user ?? null);
+      setAuthLoading(false);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    return () => listener?.subscription?.unsubscribe();
+  }, []);
+
+  async function signInWithGoogle() {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    });
+  }
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    setUser(null);
+  }
 
   function isActive(href) {
     if (href === '/') return router.pathname === '/';
@@ -76,6 +104,21 @@ export default function Layout({ children }) {
 
           <div className="header-spacer" />
 
+          {authLoading ? (
+            <div className="auth-placeholder" />
+          ) : user ? (
+            <div className="user-menu">
+              <img src={user.user_metadata?.avatar_url} className="user-avatar" alt="" onClick={() => router.push('/profile')} style={{cursor:'pointer'}} />
+              <button className="user-name" onClick={() => router.push('/profile')}>{user.user_metadata?.full_name?.split(' ')[0]}</button>
+              <button className="user-signout" onClick={signOut}>יציאה</button>
+            </div>
+          ) : (
+            <button className="btn-google" onClick={signInWithGoogle}>
+              <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              כניסה עם גוגל
+            </button>
+          )}
+
           <button className="burger" onClick={() => setOpen(!open)} aria-label="תפריט">
             {open ? '✕' : '☰'}
           </button>
@@ -102,24 +145,26 @@ export default function Layout({ children }) {
       </header>
 
       {/* SUBNAV */}
-      <div className="subnav">
-        <div className="subnav-inner">
-          {SUB_CATS.map(c => {
-            const active = router.pathname === c.href || (c.href !== '/' && router.asPath.startsWith(c.href));
-            return (
-              <Link key={c.href} href={c.href} className={`subnav-item${active ? ' active' : ''}`}>
-                <c.Icon size={13} />
-                {c.label}
-              </Link>
-            );
-          })}
+      {!minimal && (
+        <div className="subnav">
+          <div className="subnav-inner">
+            {SUB_CATS.map(c => {
+              const active = router.pathname === c.href || (c.href !== '/' && router.asPath.startsWith(c.href));
+              return (
+                <Link key={c.href} href={c.href} className={`subnav-item${active ? ' active' : ''}`}>
+                  <c.Icon size={13} />
+                  {c.label}
+                </Link>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
       <main>{children}</main>
 
       {/* FOOTER */}
-      <footer>
+      {!minimal && <footer>
         <div className="ft-inner">
           <div className="ft-top">
             <div className="ft-brand">
@@ -150,7 +195,7 @@ export default function Layout({ children }) {
             </div>
           </div>
         </div>
-      </footer>
+      </footer>}
 
       {/* BOTTOM MOBILE NAV */}
       <nav className="bot-nav">
@@ -166,7 +211,7 @@ export default function Layout({ children }) {
         @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Rubik:wght@400;500;700;900&display=swap');
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { overflow-x: hidden; max-width: 100%; width: 100%; }
-        body { font-family: 'Heebo', sans-serif; background: #FFF8F3; color: #1A1A1A; direction: rtl; }
+        body { font-family: 'Heebo', sans-serif; background: #FFF8F3; color: #1A1A1A; direction: rtl; text-align: right; }
         a { text-decoration: none; color: inherit; }
         button { font-family: 'Heebo', sans-serif; cursor: pointer; border: none; background: none; }
         img { max-width: 100%; display: block; }
@@ -184,7 +229,7 @@ export default function Layout({ children }) {
         /* HEADER */
         header { background: var(--white); border-bottom: 1px solid var(--gray2); position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
         .header-inner { max-width: 1280px; margin: 0 auto; padding: 0 var(--pad); height: 64px; display: flex; align-items: center; gap: 4px; }
-        .logo { font-family: 'Rubik', sans-serif; font-size: 26px; font-weight: 900; color: var(--navy); flex-shrink: 0; margin-left: 8px; }
+        .logo { font-family: 'Rubik', sans-serif; font-size: 26px; font-weight: 900; color: var(--navy); flex-shrink: 0; margin-left: 8px; margin-right: 4px; }
         .logo span { color: var(--red); }
         .desk-nav { display: flex; gap: 2px; flex-shrink: 0; }
         .header-spacer { flex: 1; }
@@ -192,6 +237,14 @@ export default function Layout({ children }) {
         .nav-link:hover { background: var(--gray); color: var(--navy); }
         .nav-link.active { background: var(--red); color: #fff; }
         .burger { display: none; font-size: 22px; color: var(--navy); padding: 8px; border-radius: 8px; line-height: 1; flex-shrink: 0; }
+        .auth-placeholder { width: 120px; height: 34px; background: var(--gray); border-radius: 50px; flex-shrink: 0; }
+        .btn-google { display:flex; align-items:center; gap:8px; background:#fff; border:1.5px solid #E8E0D8; border-radius:50px; padding:7px 16px; font-size:13px; font-weight:700; color:var(--navy); cursor:pointer; white-space:nowrap; transition:all .18s; flex-shrink:0; font-family:'Heebo',sans-serif; }
+        .btn-google:hover { border-color:#4285F4; box-shadow:0 2px 8px rgba(66,133,244,.2); }
+        .user-menu { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+        .user-avatar { width:32px; height:32px; border-radius:50%; border:2px solid var(--gray2); }
+        .user-name { font-size:13px; font-weight:700; color:var(--navy); cursor:pointer; background:none; border:none; font-family:'Heebo',sans-serif; }
+        .user-signout { font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; background:none; border:none; font-family:'Heebo',sans-serif; padding: 4px 8px; border-radius: 8px; transition: all .15s; }
+        .user-signout:hover { background: var(--gray); color: var(--navy); }
 
         /* MOBILE MENU */
         .mob-menu { position: absolute; top: 64px; right: 0; left: 0; background: var(--white); border-bottom: 2px solid var(--gray2); box-shadow: 0 8px 24px rgba(0,0,0,.12); z-index: 199; padding: 8px 0 16px; max-height: 80vh; overflow-y: auto; }
