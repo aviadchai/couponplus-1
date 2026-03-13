@@ -1,5 +1,6 @@
 import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { getCoupons, getSlides } from '../lib/sheets';
 import Layout from '../components/Layout';
 import CouponCard from '../components/CouponCard';
@@ -33,9 +34,17 @@ const SUPER_CHAINS = [
 ];
 
 export default function Home({ coupons, slides }) {
+  const router = useRouter();
   const [search,       setSearch]       = useState('');
   const [activeCat,    setActiveCat]    = useState('all');
-  const [activeSuper,  setActiveSuper]  = useState(null); // selected supermarket chain
+  const [activeSuper,  setActiveSuper]  = useState(null);
+
+  useEffect(() => {
+    if (router.query.q) {
+      setSearch(router.query.q);
+      document.getElementById('coupons')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [router.query.q]); // selected supermarket chain
 
   // Main grid filter
   const filtered = coupons.filter(c => {

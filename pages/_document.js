@@ -12,7 +12,7 @@ export default function Document() {
         <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23E8321A'/><text x='50' y='78' font-size='75' text-anchor='middle' fill='white' font-family='Arial Black,sans-serif' font-weight='900'>+</text></svg>" />
 
         <meta name="theme-color" content="#E8321A" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
         <meta property="og:site_name" content="קופון+" />
         <meta property="og:locale" content="he_IL" />
 

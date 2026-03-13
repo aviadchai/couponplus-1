@@ -102,6 +102,22 @@ export default function Layout({ children, minimal = false }) {
             ))}
           </nav>
 
+          <div className="header-search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="חיפוש קופון..."
+              className="header-search-input"
+              onKeyDown={e => {
+                if (e.key === 'Enter' && e.target.value.trim()) {
+                  router.push(`/?q=${encodeURIComponent(e.target.value.trim())}`);
+                }
+              }}
+            />
+          </div>
+
           <div className="header-spacer" />
 
           {authLoading ? (
@@ -238,6 +254,10 @@ export default function Layout({ children, minimal = false }) {
         .nav-link.active { background: var(--red); color: #fff; }
         .burger { display: none; font-size: 22px; color: var(--navy); padding: 8px; border-radius: 8px; line-height: 1; flex-shrink: 0; }
         .auth-placeholder { width: 120px; height: 34px; background: var(--gray); border-radius: 50px; flex-shrink: 0; }
+        .header-search { display:flex; align-items:center; gap:8px; background:var(--gray); border:1.5px solid var(--gray2); border-radius:50px; padding:7px 14px; flex:1; max-width:320px; color:var(--muted); transition:border-color .18s; }
+        .header-search:focus-within { border-color:#1A1A2E; background:#fff; }
+        .header-search-input { background:none; border:none; outline:none; font-size:13px; font-family:'Heebo',sans-serif; color:var(--navy); width:100%; }
+        .header-search-input::placeholder { color:var(--muted); }
         .btn-google { display:flex; align-items:center; gap:8px; background:#fff; border:1.5px solid #E8E0D8; border-radius:50px; padding:7px 16px; font-size:13px; font-weight:700; color:var(--navy); cursor:pointer; white-space:nowrap; transition:all .18s; flex-shrink:0; font-family:'Heebo',sans-serif; }
         .btn-google:hover { border-color:#4285F4; box-shadow:0 2px 8px rgba(66,133,244,.2); }
         .user-menu { display:flex; align-items:center; gap:8px; flex-shrink:0; }
@@ -281,7 +301,7 @@ export default function Layout({ children, minimal = false }) {
         .ft-links a:hover { color: #fff; }
 
         /* BOTTOM MOBILE NAV */
-        .bot-nav { display: none; position: fixed; bottom: 0; right: 0; left: 0; background: var(--white); border-top: 1px solid var(--gray2); box-shadow: 0 -4px 16px rgba(0,0,0,.08); z-index: 300; height: 62px; }
+        .bot-nav { display: none; position: fixed; bottom: 0; right: 0; left: 0; background: var(--white); border-top: 1px solid var(--gray2); box-shadow: 0 -4px 16px rgba(0,0,0,.08); z-index: 300; height: calc(62px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); }
         .bot-item { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 2px; color: var(--muted); transition: color .18s; padding: 6px 0; }
         .bot-item.active { color: var(--red); }
         .bot-lbl { font-size: 9px; font-weight: 700; }
