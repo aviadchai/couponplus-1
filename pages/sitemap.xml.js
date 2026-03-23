@@ -20,6 +20,7 @@ const STATIC_PAGES = [
   { url: '/category/בית ומטבח',        priority: '0.7', changefreq: 'daily' },
   { url: '/category/אופנה',            priority: '0.7', changefreq: 'daily' },
   { url: '/category/חיות מחמד',        priority: '0.7', changefreq: 'daily' },
+  { url: '/category/קופוני-מוצר',      priority: '0.8', changefreq: 'daily' },
 ];
 
 function escapeXml(str) {

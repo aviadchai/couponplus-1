@@ -13,6 +13,7 @@ const META = {
   'בית ומטבח':{'emoji':'🏠','color':'#4E342E'},
   'אופנה':{'emoji':'👗','color':'#AD1457'},
   'חיות מחמד':{'emoji':'🐾','color':'#2E7D32'},
+  'קופוני-מוצר':{'emoji':'🏷️','color':'#E8321A'},
 };
 
 export default function CategoryPage({ coupons, category }) {
@@ -62,7 +63,7 @@ export default function CategoryPage({ coupons, category }) {
 }
 export async function getStaticPaths() {
   return {
-    paths: Object.keys({'סופרמרקט':1,'פארם ובריאות':1,'טיפוח וקוסמטיקה':1,'טואלטיקה':1,'אלקטרוניקה':1,'בית ומטבח':1,'אופנה':1,'חיות מחמד':1}).map(s => ({ params: { slug: s } })),
+    paths: Object.keys({'סופרמרקט':1,'פארם ובריאות':1,'טיפוח וקוסמטיקה':1,'טואלטיקה':1,'אלקטרוניקה':1,'בית ומטבח':1,'אופנה':1,'חיות מחמד':1,'קופוני-מוצר':1}).map(s => ({ params: { slug: s } })),
     fallback: 'blocking',
   };
 }
