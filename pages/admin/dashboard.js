@@ -14,6 +14,14 @@ const EMPTY_FORM = {
   image: '', description: '', pdf: '', is_active: true,
 };
 
+const EMPTY_SLIDE = {
+  title: '', subtitle: '', tag: '', discount: '',
+  type: 'קישור להטבה', code: '', url: '', image: '',
+  coupon_id: '', is_active: true, sort_order: 0,
+};
+
+const SLIDE_TAGS = ['','סופרמרקט','פארם ובריאות','טיפוח וקוסמטיקה','אלקטרוניקה','בית ומטבח','אופנה','חיות מחמד','בינלאומי','🔥 חם','✨ חדש'];
+
 // ── Helper: בניית ID אוטומטי ──────────────────────────────────────
 function nextId(coupons) {
   const nums = coupons
@@ -46,14 +54,17 @@ async function uploadToCloudinary(file, onProgress) {
   });
 }
 
-export default function AdminDashboard({ initialCoupons }) {
+export default function AdminDashboard({ initialCoupons, initialSlides }) {
   const router = useRouter();
+  const [tab,         setTab]         = useState('coupons'); // 'coupons' | 'slides'
   const [coupons,     setCoupons]     = useState(initialCoupons);
+  const [slides,      setSlides]      = useState(initialSlides);
   const [search,      setSearch]      = useState('');
   const [filterBadge, setFilterBadge] = useState('');
   const [filterCat,   setFilterCat]   = useState('');
-  const [modal,       setModal]       = useState(null); // null | 'add' | 'edit'
+  const [modal,       setModal]       = useState(null); // null | 'add' | 'edit' | 'slide-add' | 'slide-edit'
   const [form,        setForm]        = useState(EMPTY_FORM);
+  const [slideForm,   setSlideForm]   = useState(EMPTY_SLIDE);
   const [saving,      setSaving]      = useState(false);
   const [deleting,    setDeleting]    = useState(null);
   const [imgProgress, setImgProgress] = useState(0);
@@ -180,8 +191,67 @@ export default function AdminDashboard({ initialCoupons }) {
     router.push('/admin');
   }
 
+  // ── סליידר ────────────────────────────────────────────────────
+  function openSlideAdd() {
+    setSlideForm({ ...EMPTY_SLIDE, sort_order: slides.length });
+    setImgTab('upload');
+    setModal('slide-add');
+  }
+
+  function openSlideEdit(slide) {
+    setSlideForm({ ...slide });
+    setImgTab(slide.image ? 'url' : 'upload');
+    setModal('slide-edit');
+  }
+
+  async function handleSaveSlide(e) {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const isEdit = modal === 'slide-edit';
+      const url    = isEdit ? `/api/admin/slides/${slideForm.id}` : '/api/admin/slides';
+      const res    = await fetch(url, {
+        method: isEdit ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(slideForm),
+      });
+      if (!res.ok) throw new Error((await res.json()).error);
+      const saved = await res.json();
+      setSlides(prev => isEdit ? prev.map(s => s.id === saved.id ? saved : s) : [...prev, saved]);
+      setModal(null);
+      showToast(isEdit ? '✅ שקף עודכן' : '✅ שקף נוסף');
+    } catch (err) {
+      alert('שגיאה: ' + err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDeleteSlide(id) {
+    if (!confirm('למחוק שקף זה?')) return;
+    setDeleting(id);
+    try {
+      await fetch(`/api/admin/slides/${id}`, { method: 'DELETE' });
+      setSlides(prev => prev.filter(s => s.id !== id));
+      showToast('🗑 שקף נמחק');
+    } catch { alert('שגיאת מחיקה'); }
+    finally { setDeleting(null); }
+  }
+
+  async function toggleSlideActive(slide) {
+    const updated = { ...slide, is_active: !slide.is_active };
+    await fetch(`/api/admin/slides/${slide.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated),
+    });
+    setSlides(prev => prev.map(s => s.id === slide.id ? updated : s));
+  }
+
   const showCode = form.type === 'קוד קופון' || form.type === 'קוד + קישור';
   const showUrl  = form.type === 'קישור להטבה' || form.type === 'קוד + קישור';
+  const slideShowCode = slideForm.type === 'קוד קופון' || slideForm.type === 'קוד + קישור';
+  const slideShowUrl  = slideForm.type === 'קישור להטבה' || slideForm.type === 'קוד + קישור';
 
   return (
     <>
@@ -208,8 +278,53 @@ export default function AdminDashboard({ initialCoupons }) {
 
       <main className="main">
 
-        {/* ═══ STATS ═══ */}
-        <div className="stats-row">
+        {/* ═══ TABS ═══ */}
+        <div className="tabs">
+          <button className={`tab${tab==='coupons'?' active':''}`} onClick={() => setTab('coupons')}>🏷️ קופונים ({coupons.length})</button>
+          <button className={`tab${tab==='slides'?' active':''}`} onClick={() => setTab('slides')}>🖼️ סליידר ({slides.filter(s=>s.is_active).length} פעילים)</button>
+        </div>
+
+        {/* ═══ SLIDES TAB ═══ */}
+        {tab === 'slides' && (
+          <div>
+            <div className="toolbar">
+              <div style={{flex:1,fontSize:13,color:'#7A6E68',fontWeight:600}}>עד 3 שקפים פעילים מוצגים בסליידר הראשי</div>
+              <button className="btn-add" onClick={openSlideAdd} disabled={slides.filter(s=>s.is_active).length >= 3}>
+                + הוסף שקף {slides.filter(s=>s.is_active).length >= 3 ? '(מקסימום 3)' : ''}
+              </button>
+            </div>
+            <div className="slides-grid">
+              {slides.length === 0 && <div className="empty-row" style={{padding:40,textAlign:'center',color:'#9E9E9E'}}>אין שקפים עדיין</div>}
+              {slides.map(s => (
+                <div key={s.id} className={`slide-card${!s.is_active?' inactive':''}`}>
+                  <div className="slide-preview" style={{backgroundImage: s.image ? `url(${s.image})` : 'none', background: s.image ? undefined : 'linear-gradient(135deg,#1A1A2E,#E8321A)'}}>
+                    {s.discount && <div className="slide-discount">{s.discount}</div>}
+                    {s.tag && <div className="slide-tag">{s.tag}</div>}
+                  </div>
+                  <div className="slide-info">
+                    <div className="slide-title">{s.title || '(ללא כותרת)'}</div>
+                    {s.subtitle && <div className="slide-sub">{s.subtitle}</div>}
+                    <div className="slide-meta">
+                      {s.code && <span className="slide-badge">קוד: {s.code}</span>}
+                      {s.url && <span className="slide-badge">🔗 קישור</span>}
+                      {s.coupon_id && <span className="slide-badge">→ {s.coupon_id}</span>}
+                    </div>
+                  </div>
+                  <div className="slide-actions">
+                    <button className={`toggle-btn ${s.is_active?'on':'off'}`} onClick={() => toggleSlideActive(s)}>
+                      {s.is_active ? 'פעיל' : 'כבוי'}
+                    </button>
+                    <button className="btn-edit" onClick={() => openSlideEdit(s)}>✏ עריכה</button>
+                    <button className="btn-del" onClick={() => handleDeleteSlide(s.id)} disabled={deleting===s.id}>🗑</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ═══ STATS + TABLE (coupons tab only) ═══ */}
+        {tab === 'coupons' && <><div className="stats-row">
           <div className="stat-card"><div className="stat-num">{stats.total}</div><div className="stat-lbl">סה״כ קופונים</div></div>
           <div className="stat-card green"><div className="stat-num">{stats.active}</div><div className="stat-lbl">פעילים</div></div>
           <div className="stat-card red"><div className="stat-num">{stats.expired}</div><div className="stat-lbl">לא פעילים</div></div>
@@ -296,8 +411,124 @@ export default function AdminDashboard({ initialCoupons }) {
         </div>
 
         <div className="tbl-count">{filtered.length} קופונים מוצגים</div>
+        </>}
 
       </main>
+
+      {/* ═══ SLIDE MODAL ═══ */}
+      {(modal === 'slide-add' || modal === 'slide-edit') && (
+        <div className="overlay" onClick={e => e.target === e.currentTarget && setModal(null)}>
+          <div className="modal">
+            <div className="modal-hdr">
+              <h2>{modal === 'slide-add' ? '➕ הוסף שקף' : '✏ עריכת שקף'}</h2>
+              <button className="modal-close" onClick={() => setModal(null)}>✕</button>
+            </div>
+            <form onSubmit={handleSaveSlide} className="form">
+
+              <div className="field">
+                <label>כותרת ראשית <span className="req">*</span></label>
+                <input value={slideForm.title} onChange={e => setSlideForm(f=>({...f,title:e.target.value}))} placeholder="לדוגמה: חסכו 20% ברמי לוי" required />
+              </div>
+
+              <div className="form-row">
+                <div className="field">
+                  <label>כותרת משנה</label>
+                  <input value={slideForm.subtitle} onChange={e => setSlideForm(f=>({...f,subtitle:e.target.value}))} placeholder="טקסט קטן מתחת לכותרת" />
+                </div>
+                <div className="field">
+                  <label>תגית</label>
+                  <select value={slideForm.tag} onChange={e => setSlideForm(f=>({...f,tag:e.target.value}))}>
+                    {SLIDE_TAGS.map(t => <option key={t} value={t}>{t || 'ללא תגית'}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="field">
+                  <label>הנחה (טקסט גדול)</label>
+                  <input value={slideForm.discount} onChange={e => setSlideForm(f=>({...f,discount:e.target.value}))} placeholder="20% / 50₪ / 1+1" />
+                </div>
+                <div className="field">
+                  <label>סוג</label>
+                  <select value={slideForm.type} onChange={e => setSlideForm(f=>({...f,type:e.target.value}))}>
+                    {TYPES.map(t => <option key={t}>{t}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                {slideShowCode && (
+                  <div className="field">
+                    <label>קוד קופון</label>
+                    <input value={slideForm.code} onChange={e => setSlideForm(f=>({...f,code:e.target.value}))} placeholder="SAVE20" style={{letterSpacing:'2px',fontWeight:700}} />
+                  </div>
+                )}
+                {slideShowUrl && (
+                  <div className="field" style={{flex:2}}>
+                    <label>קישור</label>
+                    <input type="url" value={slideForm.url} onChange={e => setSlideForm(f=>({...f,url:e.target.value}))} placeholder="https://..." />
+                  </div>
+                )}
+              </div>
+
+              <div className="field">
+                <label>ID קופון (לחיצה תעביר לדף הקופון)</label>
+                <input value={slideForm.coupon_id} onChange={e => setSlideForm(f=>({...f,coupon_id:e.target.value}))} placeholder="coup_01" />
+              </div>
+
+              <div className="field">
+                <label>תמונת רקע</label>
+                <div className="img-tabs">
+                  <button type="button" className={`img-tab${imgTab==='upload'?' active':''}`} onClick={()=>setImgTab('upload')}>📁 העלאת קובץ</button>
+                  <button type="button" className={`img-tab${imgTab==='url'?' active':''}`} onClick={()=>setImgTab('url')}>🔗 הדבק URL</button>
+                </div>
+                {imgTab === 'upload' ? (
+                  <div className="upload-box">
+                    <input type="file" accept="image/*" onChange={async e => {
+                      const file = e.target.files?.[0]; if (!file) return;
+                      setImgProgress(1);
+                      try { const url = await uploadToCloudinary(file, setImgProgress); setSlideForm(f=>({...f,image:url})); setImgProgress(0); }
+                      catch(err) { alert('שגיאת העלאה: ' + err.message); setImgProgress(0); }
+                    }} id="slide-img-file" style={{display:'none'}} />
+                    <label htmlFor="slide-img-file" className="upload-label">
+                      {imgProgress > 0 ? <span>מעלה... {imgProgress}%</span> : <span>לחץ לבחירת תמונה (מומלץ 1280×480)</span>}
+                    </label>
+                    {imgProgress > 0 && <div className="progress-bar"><div style={{width:`${imgProgress}%`}} /></div>}
+                  </div>
+                ) : (
+                  <input type="url" value={slideForm.image} onChange={e => setSlideForm(f=>({...f,image:e.target.value}))} placeholder="https://..." />
+                )}
+                {slideForm.image && (
+                  <div className="img-preview">
+                    <img src={slideForm.image} alt="תצוגה מקדימה" style={{width:160,height:60,objectFit:'cover'}} />
+                    <button type="button" className="img-remove" onClick={() => setSlideForm(f=>({...f,image:''}))}>✕ הסר</button>
+                  </div>
+                )}
+              </div>
+
+              <div className="form-row">
+                <div className="field">
+                  <label>סדר תצוגה</label>
+                  <input type="number" value={slideForm.sort_order} onChange={e => setSlideForm(f=>({...f,sort_order:parseInt(e.target.value)||0}))} min={0} max={10} />
+                </div>
+                <div className="field-inline" style={{flex:2,justifyContent:'flex-start',paddingTop:24}}>
+                  <label>
+                    <input type="checkbox" checked={slideForm.is_active} onChange={e => setSlideForm(f=>({...f,is_active:e.target.checked}))} />
+                    <span>שקף פעיל (מוצג בסליידר)</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-footer">
+                <button type="button" className="btn-cancel" onClick={() => setModal(null)}>ביטול</button>
+                <button type="submit" className="btn-save" disabled={saving}>
+                  {saving ? 'שומר...' : modal === 'slide-add' ? '✅ הוסף שקף' : '💾 שמור'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* ═══ MODAL ═══ */}
       {modal && (
@@ -564,11 +795,32 @@ export default function AdminDashboard({ initialCoupons }) {
         /* TOAST */
         .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1A1A2E; color: #fff; padding: 12px 24px; border-radius: 50px; font-size: 14px; font-weight: 700; z-index: 300; box-shadow: 0 8px 24px rgba(0,0,0,.3); }
 
+        /* TABS */
+        .tabs { display:flex; gap:6px; margin-bottom:20px; border-bottom:2px solid #E8E0D8; padding-bottom:0; }
+        .tab { padding:10px 20px; background:none; border:none; border-bottom:3px solid transparent; font-size:14px; font-weight:700; color:#7A6E68; cursor:pointer; font-family:'Heebo',sans-serif; margin-bottom:-2px; transition:all .18s; }
+        .tab.active { color:#1A1A2E; border-bottom-color:#E8321A; }
+        .tab:hover:not(.active) { color:#1A1A2E; }
+
+        /* SLIDES */
+        .slides-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; }
+        .slide-card { background:#fff; border-radius:16px; border:1.5px solid #E8E0D8; overflow:hidden; }
+        .slide-card.inactive { opacity:.55; }
+        .slide-preview { height:100px; background-size:cover; background-position:center; position:relative; display:flex; align-items:flex-end; padding:10px 14px; }
+        .slide-discount { font-family:'Rubik',sans-serif; font-size:28px; font-weight:900; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.5); }
+        .slide-tag { position:absolute; top:8px; right:10px; background:rgba(232,50,26,.9); color:#fff; font-size:10px; font-weight:800; padding:2px 10px; border-radius:20px; }
+        .slide-info { padding:12px 14px; }
+        .slide-title { font-size:14px; font-weight:800; color:#1A1A2E; margin-bottom:3px; }
+        .slide-sub { font-size:12px; color:#7A6E68; margin-bottom:6px; }
+        .slide-meta { display:flex; gap:6px; flex-wrap:wrap; }
+        .slide-badge { background:#F0ECE8; color:#7A6E68; font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px; }
+        .slide-actions { display:flex; gap:6px; padding:10px 14px; border-top:1px solid #F0ECE8; }
+
         /* RESPONSIVE */
         @media (max-width: 768px) {
           .stats-row { grid-template-columns: repeat(2, 1fr); }
           .toolbar { flex-direction: column; }
           .form-row { flex-direction: column; }
+          .slides-grid { grid-template-columns: 1fr; }
         }
       `}</style>
     </>
@@ -585,10 +837,10 @@ export async function getServerSideProps({ req }) {
   }
 
   const sb = createAdminClient();
-  const { data: coupons } = await sb
-    .from('coupons')
-    .select('*')
-    .order('created_at', { ascending: false });
+  const [{ data: coupons }, { data: slides }] = await Promise.all([
+    sb.from('coupons').select('*').order('created_at', { ascending: false }),
+    sb.from('slides').select('*').order('sort_order'),
+  ]);
 
-  return { props: { initialCoupons: coupons || [] } };
+  return { props: { initialCoupons: coupons || [], initialSlides: slides || [] } };
 }

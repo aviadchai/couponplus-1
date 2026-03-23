@@ -47,3 +47,26 @@ CREATE POLICY "service_all" ON coupons
 -- ── View for admin panel (all coupons, including inactive) ────────
 CREATE OR REPLACE VIEW coupons_admin AS
   SELECT * FROM coupons ORDER BY created_at DESC;
+
+-- ══════════════════════════════════════════════════════════════════
+--  טבלת סליידר
+-- ══════════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS slides (
+  id          SERIAL       PRIMARY KEY,
+  title       TEXT         NOT NULL DEFAULT '',
+  subtitle    TEXT         DEFAULT '',
+  tag         TEXT         DEFAULT '',
+  discount    TEXT         DEFAULT '',
+  type        TEXT         DEFAULT 'קישור להטבה',
+  code        TEXT         DEFAULT '',
+  url         TEXT         DEFAULT '',
+  image       TEXT         DEFAULT '',
+  coupon_id   TEXT         DEFAULT '',
+  is_active   BOOLEAN      DEFAULT true,
+  sort_order  INT          DEFAULT 0,
+  created_at  TIMESTAMPTZ  DEFAULT NOW()
+);
+
+ALTER TABLE slides ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "slides_public_read" ON slides FOR SELECT USING (is_active = true);
+CREATE POLICY "slides_service_all" ON slides FOR ALL USING (auth.role() = 'service_role');
