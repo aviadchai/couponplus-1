@@ -5,7 +5,7 @@ import Link from 'next/link';
 export default function Terms() {
   return (
     <Layout>
-      <Head><title>תנאי שימוש | קופון+</title></Head>
+      <Head><title>תנאי שימוש | קופון פלוס</title></Head>
       <div className="page-wrap">
         <div className="box">
           <h1>📋 תנאי שימוש</h1>

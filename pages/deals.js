@@ -26,7 +26,15 @@ export default function Deals({ coupons }) {
 
   return (
     <Layout>
-      <Head><title>כל המבצעים | קופון+</title></Head>
+      <Head>
+        <title>כל הקופונים והמבצעים | קופון פלוס</title>
+        <meta name="description" content={`${coupons.length}+ קופונים ומבצעים מכל הרשתות הגדולות — שופרסל, רמי לוי, מגה, ויקטורי ועוד. מתעדכן כל שעה בקופון פלוס.`} />
+        <link rel="canonical" href="https://couponplus.co.il/deals" />
+        <meta property="og:title" content="כל הקופונים והמבצעים | קופון פלוס" />
+        <meta property="og:description" content={`${coupons.length}+ קופונים ומבצעים מכל הרשתות הגדולות`} />
+        <meta property="og:url" content="https://couponplus.co.il/deals" />
+        <meta property="og:type" content="website" />
+      </Head>
 
       <div className="page-hero">
         <h1>🔥 כל המבצעים</h1>

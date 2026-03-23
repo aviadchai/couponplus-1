@@ -82,8 +82,13 @@ export default function Home({ coupons, slides }) {
   return (
     <Layout>
       <Head>
-        <title>קופון+ | כל הקופונים והמבצעים במקום אחד</title>
-        <meta name="description" content="אלפי קופונים ומבצעים מכל הרשתות הגדולות" />
+        <title>קופון פלוס | כל הקופונים והמבצעים במקום אחד</title>
+        <meta name="description" content="קופון פלוס – אלפי קופונים ומבצעים מרמי לוי, שופרסל, מגה, ויקטורי ועוד. חסכו יותר בכל קנייה בסופר. מתעדכן כל שעה." />
+        <link rel="canonical" href="https://couponplus.co.il" />
+        <meta property="og:title" content="קופון פלוס | כל הקופונים והמבצעים במקום אחד" />
+        <meta property="og:description" content="אלפי קופונים ומבצעים מרמי לוי, שופרסל, מגה, ויקטורי ועוד. מתעדכן כל שעה." />
+        <meta property="og:url" content="https://couponplus.co.il" />
+        <meta property="og:type" content="website" />
       </Head>
 
       {/* ══ HERO ══ */}
@@ -152,7 +157,7 @@ export default function Home({ coupons, slides }) {
             <h2>מבצעי פסח — הכל במקום אחד</h2>
             <p>קופונים וחסכונות לחג מכל הרשתות הגדולות</p>
           </div>
-          <a href="/passover" className="passover-cta">לכל מבצעי הפסח ←</a>
+          <a href="/special" className="passover-cta">לכל מבצעי הפסח ←</a>
         </div>
       </div>
 

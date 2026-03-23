@@ -21,7 +21,15 @@ export default function CategoryPage({ coupons, category }) {
   const filtered = coupons.filter(c => !search || c.name.includes(search) || c.chain.includes(search));
   return (
     <Layout>
-      <Head><title>{meta.emoji} {category} | קופון+</title></Head>
+      <Head>
+        <title>קופונים ומבצעים {category} | קופון פלוס</title>
+        <meta name="description" content={`${filtered.length} קופונים ומבצעים בקטגוריית ${category}. חסכו כסף עם קופון פלוס — כל הקופונים מכל הרשתות במקום אחד.`} />
+        <link rel="canonical" href={`https://couponplus.co.il/category/${encodeURIComponent(category)}`} />
+        <meta property="og:title" content={`קופונים ומבצעים ${category} | קופון פלוס`} />
+        <meta property="og:description" content={`${filtered.length} קופונים ומבצעים בקטגוריית ${category}`} />
+        <meta property="og:url" content={`https://couponplus.co.il/category/${encodeURIComponent(category)}`} />
+        <meta property="og:type" content="website" />
+      </Head>
       <div className="page-hero" style={{ background: `linear-gradient(135deg, ${meta.color}ee, ${meta.color}99)` }}>
         <h1>{meta.emoji} {category}</h1>
         <p>{filtered.length} מבצעים פעילים</p>

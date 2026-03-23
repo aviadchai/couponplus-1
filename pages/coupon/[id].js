@@ -37,8 +37,30 @@ export default function CouponPage({ coupon, related }) {
   return (
     <Layout>
       <Head>
-        <title>{coupon.name} | קופון+</title>
-        <meta name="description" content={`${coupon.discount} הנחה ב${coupon.chain} — ${coupon.name}`} />
+        <title>{coupon.name} | קופון פלוס</title>
+        <meta name="description" content={`${coupon.discount ? coupon.discount + ' הנחה' : 'מבצע מיוחד'} ב${coupon.chain} — ${coupon.name}. מצא את כל הקופונים והמבצעים הטובים ביותר בקופון פלוס.`} />
+        <link rel="canonical" href={`https://couponplus.co.il/coupon/${encodeURIComponent(coupon.id)}`} />
+        <meta property="og:title" content={`${coupon.name} | קופון פלוס`} />
+        <meta property="og:description" content={`${coupon.discount ? coupon.discount + ' הנחה' : 'מבצע מיוחד'} ב${coupon.chain} — ${coupon.name}`} />
+        <meta property="og:url" content={`https://couponplus.co.il/coupon/${encodeURIComponent(coupon.id)}`} />
+        <meta property="og:type" content="product" />
+        {coupon.image && <meta property="og:image" content={coupon.image} />}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          "name": coupon.name,
+          "brand": { "@type": "Brand", "name": coupon.chain },
+          "description": coupon.description || `${coupon.discount || ''} ${coupon.name}`,
+          ...(coupon.image ? { "image": coupon.image } : {}),
+          "offers": {
+            "@type": "Offer",
+            "url": `https://couponplus.co.il/coupon/${encodeURIComponent(coupon.id)}`,
+            "priceCurrency": "ILS",
+            "availability": coupon.expired ? "https://schema.org/Discontinued" : "https://schema.org/InStock",
+            ...(coupon.expiry ? { "priceValidUntil": coupon.expiry } : {}),
+            ...(coupon.discount ? { "description": coupon.discount } : {})
+          }
+        }) }} />
       </Head>
 
       {/* Lightbox */}

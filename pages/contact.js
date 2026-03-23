@@ -7,7 +7,7 @@ export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   return (
     <Layout>
-      <Head><title>צור קשר | קופון+</title></Head>
+      <Head><title>צור קשר | קופון פלוס</title></Head>
       <div className="page-wrap">
         <div className="box">
           <h1>✉️ צור קשר</h1>

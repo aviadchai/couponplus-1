@@ -60,7 +60,7 @@ export default function ShoppingPage({ allCoupons }) {
   return (
     <Layout>
       <Head>
-        <title>קופון+ | אני בסופר</title>
+        <title>קופון פלוס | אני בסופר</title>
       </Head>
 
       <div className="page">

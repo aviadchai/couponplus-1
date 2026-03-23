@@ -13,8 +13,36 @@ export default function Document() {
 
         <meta name="theme-color" content="#E8321A" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
-        <meta property="og:site_name" content="קופון+" />
+        <meta property="og:site_name" content="קופון פלוס" />
         <meta property="og:locale" content="he_IL" />
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "name": "קופון פלוס",
+              "alternateName": "קופון+",
+              "url": "https://couponplus.co.il",
+              "logo": "https://couponplus.co.il/logo.png"
+            },
+            {
+              "@type": "WebSite",
+              "name": "קופון פלוס",
+              "alternateName": "קופון+",
+              "url": "https://couponplus.co.il",
+              "inLanguage": "he",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": {
+                  "@type": "EntryPoint",
+                  "urlTemplate": "https://couponplus.co.il/?q={search_term_string}"
+                },
+                "query-input": "required name=search_term_string"
+              }
+            }
+          ]
+        }) }} />
 
         <script
           async

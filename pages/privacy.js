@@ -5,7 +5,7 @@ import Link from 'next/link';
 export default function Privacy() {
   return (
     <Layout>
-      <Head><title>מדיניות פרטיות | קופון+</title></Head>
+      <Head><title>מדיניות פרטיות | קופון פלוס</title></Head>
       <div className="page-wrap">
         <div className="box">
           <h1>🔒 מדיניות פרטיות</h1>

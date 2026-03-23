@@ -9,7 +9,14 @@ export default function Pharm({ coupons }) {
   const filtered = coupons.filter(c => !search || c.name.includes(search) || c.chain.includes(search));
   return (
     <Layout>
-      <Head><title>פארם וקוסמטיקה | קופון+</title></Head>
+      <Head>
+        <title>קופונים פארם, טיפוח וקוסמטיקה | קופון פלוס</title>
+        <meta name="description" content={`${filtered.length} קופונים ומבצעים בפארם, טיפוח וקוסמטיקה. חסכו על תרופות ומוצרי יופי עם קופון פלוס.`} />
+        <link rel="canonical" href="https://couponplus.co.il/pharm" />
+        <meta property="og:title" content="קופונים פארם וקוסמטיקה | קופון פלוס" />
+        <meta property="og:url" content="https://couponplus.co.il/pharm" />
+        <meta property="og:type" content="website" />
+      </Head>
       <div className="page-hero">
         <h1>💊 פארם וקוסמטיקה</h1>
         <p>{filtered.length} מבצעים בפארם, טיפוח וקוסמטיקה</p>

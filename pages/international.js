@@ -37,7 +37,15 @@ export default function International({ coupons }) {
 
   return (
     <Layout>
-      <Head><title>קופונים בינלאומיים | קופון+</title></Head>
+      <Head>
+        <title>קופונים בינלאומיים — AliExpress, Shein, Amazon | קופון פלוס</title>
+        <meta name="description" content="קופונים ומבצעים לאתרי קניות בינלאומיים — AliExpress, Shein, Amazon, eBay, Temu. חסכו יותר עם קופון פלוס." />
+        <link rel="canonical" href="https://couponplus.co.il/international" />
+        <meta property="og:title" content="קופונים בינלאומיים | קופון פלוס" />
+        <meta property="og:description" content="קופונים לאתרים בינלאומיים — AliExpress, Shein, Amazon, eBay, Temu" />
+        <meta property="og:url" content="https://couponplus.co.il/international" />
+        <meta property="og:type" content="website" />
+      </Head>
 
       <div className="hero">
         <div className="hero-inner">

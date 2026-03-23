@@ -27,8 +27,13 @@ export default function PassoverPage({ coupons }) {
   return (
     <Layout minimal>
       <Head>
-        <title>קופון+ | מבצעי פסח</title>
-        <meta name="description" content="כל מבצעי הפסח במקום אחד — חג שמח!" />
+        <title>מבצעי פסח 2025 | קופון פלוס</title>
+        <meta name="description" content="כל קופוני ומבצעי פסח 2025 במקום אחד — שופרסל, רמי לוי, מגה ועוד. חסכו יותר לחג עם קופון פלוס." />
+        <link rel="canonical" href="https://couponplus.co.il/passover" />
+        <meta property="og:title" content="מבצעי פסח 2025 | קופון פלוס" />
+        <meta property="og:description" content="כל קופוני ומבצעי פסח 2025 מכל הרשתות במקום אחד" />
+        <meta property="og:url" content="https://couponplus.co.il/passover" />
+        <meta property="og:type" content="website" />
       </Head>
 
       <div className="page">

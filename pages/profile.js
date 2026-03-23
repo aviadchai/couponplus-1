@@ -107,7 +107,7 @@ export default function ProfilePage({ allCoupons }) {
   return (
     <Layout>
       <Head>
-        <title>קופון+ | הפרופיל שלי</title>
+        <title>קופון פלוס | הפרופיל שלי</title>
       </Head>
 
       <div className="profile-page">
