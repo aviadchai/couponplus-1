@@ -334,5 +334,5 @@ export default function PassoverPage({ coupons }) {
 
 export async function getStaticProps() {
   const coupons = await getCoupons();
-  return { props: { coupons: coupons.filter(c => !c.expired) }, revalidate: 3600 };
+  return { props: { coupons: coupons.filter(c => !c.expired) }, revalidate: 60 };
 }

@@ -328,5 +328,5 @@ export async function getStaticProps() {
   const coupons = HOLIDAY.filterTag
     ? all.filter(c => !c.expired && (c.badge === HOLIDAY.filterTag || c.category === HOLIDAY.filterTag || c.name.includes(HOLIDAY.filterTag)))
     : all.filter(c => !c.expired);
-  return { props: { coupons }, revalidate: 3600 };
+  return { props: { coupons }, revalidate: 60 };
 }

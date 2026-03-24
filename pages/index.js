@@ -428,5 +428,5 @@ export default function Home({ coupons, slides }) {
 
 export async function getStaticProps() {
   const [coupons, slides] = await Promise.all([getCoupons(), getSlides()]);
-  return { props: { coupons, slides }, revalidate: 3600 };
+  return { props: { coupons, slides }, revalidate: 60 };
 }

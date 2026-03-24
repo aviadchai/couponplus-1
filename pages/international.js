@@ -167,5 +167,5 @@ export async function getStaticProps() {
     return true;
   });
 
-  return { props: { coupons }, revalidate: 3600 };
+  return { props: { coupons }, revalidate: 60 };
 }

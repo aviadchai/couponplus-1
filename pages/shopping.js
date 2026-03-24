@@ -283,5 +283,5 @@ export default function ShoppingPage({ allCoupons }) {
 
 export async function getStaticProps() {
   const allCoupons = await getCoupons();
-  return { props: { allCoupons }, revalidate: 3600 };
+  return { props: { allCoupons }, revalidate: 60 };
 }
