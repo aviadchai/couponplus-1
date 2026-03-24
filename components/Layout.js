@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import { createClient } from '../lib/supabase';
+import Ticker from './Ticker';
 import {
   IconDeals, IconSupermarket, IconPharm, IconBeauty, IconToiletries,
   IconElectronics, IconHome, IconFashion, IconPets, IconCouponProduct, IconInternational
@@ -159,6 +160,8 @@ export default function Layout({ children, minimal = false }) {
           </div>
         )}
       </header>
+
+      <Ticker />
 
       {/* SUBNAV */}
       {!minimal && (
