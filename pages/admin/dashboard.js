@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 
 // ── קבועים ────────────────────────────────────────────────────────
-const CHAINS = ['רמי לוי','שופרסל','מגה','ויקטורי','יינות ביתן','חצי חינם','יוחננוף','אושר עד','Super-Pharm','NewPharm','כללית מושלם','AliExpress','Shein','Amazon','eBay','Temu','אחר'];
+const CHAINS = ['רמי לוי','שופרסל','מגה','ויקטורי','יינות ביתן','חצי חינם','יוחננוף','אושר עד','מחסני השוק','Super-Pharm','NewPharm','כללית מושלם','AliExpress','Shein','Amazon','eBay','Temu','אחר'];
 const CATEGORIES = ['סופרמרקט','פארם ובריאות','טיפוח וקוסמטיקה','טואלטיקה','אלקטרוניקה','בית ומטבח','אופנה','חיות מחמד','בינלאומי','קופוני-מוצר','אחר'];
 const TYPES = ['קוד קופון','קישור להטבה','קוד + קישור'];
 const BADGES = ['','חם','חדש','מוגבל','פסח','שבועות','ראש השנה','סוכות','חנוכה','פורים'];
@@ -20,7 +20,7 @@ const EMPTY_SLIDE = {
   coupon_id: '', is_active: true, sort_order: 0,
 };
 
-const EMPTY_ANN = { text: '', is_active: true, sort_order: 0 };
+const EMPTY_ANN = { text: '', url: '', is_clickable: false, is_active: true, sort_order: 0 };
 
 const SLIDE_TAGS = ['','סופרמרקט','פארם ובריאות','טיפוח וקוסמטיקה','אלקטרוניקה','בית ומטבח','אופנה','חיות מחמד','בינלאומי','🔥 חם','✨ חדש'];
 
@@ -650,10 +650,27 @@ export default function AdminDashboard({ initialCoupons, initialSlides, initialA
                 <input
                   value={annForm.text}
                   onChange={e => setAnnForm(f=>({...f,text:e.target.value}))}
-                  placeholder="לדוגמה: קופון חדש! 20% הנחה ברמי לוי →"
+                  placeholder="לדוגמה: קופון חדש! 20% הנחה ברמי לוי"
                   required
                 />
               </div>
+              <div className="field-inline">
+                <label>
+                  <input type="checkbox" checked={!!annForm.is_clickable} onChange={e => setAnnForm(f=>({...f,is_clickable:e.target.checked}))} />
+                  <span>הודעה לחיצה (מובילה לקישור)</span>
+                </label>
+              </div>
+              {annForm.is_clickable && (
+                <div className="field">
+                  <label>קישור</label>
+                  <input
+                    type="url"
+                    value={annForm.url || ''}
+                    onChange={e => setAnnForm(f=>({...f,url:e.target.value}))}
+                    placeholder="https://..."
+                  />
+                </div>
+              )}
               <div className="form-row">
                 <div className="field" style={{flex:'0 0 120px'}}>
                   <label>סדר תצוגה</label>
@@ -683,7 +700,7 @@ export default function AdminDashboard({ initialCoupons, initialSlides, initialA
       )}
 
       {/* ═══ MODAL ═══ */}
-      {modal && (
+      {(modal === 'add' || modal === 'edit') && (
         <div className="overlay" onClick={e => e.target === e.currentTarget && setModal(null)}>
           <div className="modal">
             <div className="modal-hdr">
