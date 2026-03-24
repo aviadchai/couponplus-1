@@ -20,6 +20,8 @@ const EMPTY_SLIDE = {
   coupon_id: '', is_active: true, sort_order: 0,
 };
 
+const EMPTY_ANN = { text: '', is_active: true, sort_order: 0 };
+
 const SLIDE_TAGS = ['','סופרמרקט','פארם ובריאות','טיפוח וקוסמטיקה','אלקטרוניקה','בית ומטבח','אופנה','חיות מחמד','בינלאומי','🔥 חם','✨ חדש'];
 
 // ── Helper: בניית ID אוטומטי ──────────────────────────────────────
@@ -54,17 +56,19 @@ async function uploadToCloudinary(file, onProgress) {
   });
 }
 
-export default function AdminDashboard({ initialCoupons, initialSlides }) {
+export default function AdminDashboard({ initialCoupons, initialSlides, initialAnnouncements }) {
   const router = useRouter();
-  const [tab,         setTab]         = useState('coupons'); // 'coupons' | 'slides'
-  const [coupons,     setCoupons]     = useState(initialCoupons);
-  const [slides,      setSlides]      = useState(initialSlides);
+  const [tab,           setTab]           = useState('coupons'); // 'coupons' | 'slides' | 'ticker'
+  const [coupons,       setCoupons]       = useState(initialCoupons);
+  const [slides,        setSlides]        = useState(initialSlides);
+  const [announcements, setAnnouncements] = useState(initialAnnouncements);
   const [search,      setSearch]      = useState('');
   const [filterBadge, setFilterBadge] = useState('');
   const [filterCat,   setFilterCat]   = useState('');
-  const [modal,       setModal]       = useState(null); // null | 'add' | 'edit' | 'slide-add' | 'slide-edit'
+  const [modal,       setModal]       = useState(null); // null | 'add' | 'edit' | 'slide-add' | 'slide-edit' | 'ann-add' | 'ann-edit'
   const [form,        setForm]        = useState(EMPTY_FORM);
   const [slideForm,   setSlideForm]   = useState(EMPTY_SLIDE);
+  const [annForm,     setAnnForm]     = useState(EMPTY_ANN);
   const [saving,      setSaving]      = useState(false);
   const [deleting,    setDeleting]    = useState(null);
   const [imgProgress, setImgProgress] = useState(0);
@@ -248,6 +252,61 @@ export default function AdminDashboard({ initialCoupons, initialSlides }) {
     setSlides(prev => prev.map(s => s.id === slide.id ? updated : s));
   }
 
+  // ── הודעות טיקר ───────────────────────────────────────────────
+  function openAnnAdd() {
+    setAnnForm({ ...EMPTY_ANN, sort_order: announcements.length });
+    setModal('ann-add');
+  }
+
+  function openAnnEdit(ann) {
+    setAnnForm({ ...ann });
+    setModal('ann-edit');
+  }
+
+  async function handleSaveAnn(e) {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const isEdit = modal === 'ann-edit';
+      const url    = isEdit ? `/api/admin/announcements/${annForm.id}` : '/api/admin/announcements';
+      const res    = await fetch(url, {
+        method: isEdit ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(annForm),
+      });
+      if (!res.ok) throw new Error((await res.json()).error);
+      const saved = await res.json();
+      setAnnouncements(prev => isEdit ? prev.map(a => a.id === saved.id ? saved : a) : [...prev, saved]);
+      setModal(null);
+      showToast(isEdit ? '✅ הודעה עודכנה' : '✅ הודעה נוספה');
+    } catch (err) {
+      alert('שגיאה: ' + err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDeleteAnn(id) {
+    if (!confirm('למחוק הודעה זו?')) return;
+    setDeleting(id);
+    try {
+      await fetch(`/api/admin/announcements/${id}`, { method: 'DELETE' });
+      setAnnouncements(prev => prev.filter(a => a.id !== id));
+      showToast('🗑 הודעה נמחקה');
+    } catch { alert('שגיאת מחיקה'); }
+    finally { setDeleting(null); }
+  }
+
+  async function toggleAnnActive(ann) {
+    const updated = { ...ann, is_active: !ann.is_active };
+    await fetch(`/api/admin/announcements/${ann.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated),
+    });
+    setAnnouncements(prev => prev.map(a => a.id === ann.id ? updated : a));
+  }
+
   const showCode = form.type === 'קוד קופון' || form.type === 'קוד + קישור';
   const showUrl  = form.type === 'קישור להטבה' || form.type === 'קוד + קישור';
   const slideShowCode = slideForm.type === 'קוד קופון' || slideForm.type === 'קוד + קישור';
@@ -282,6 +341,7 @@ export default function AdminDashboard({ initialCoupons, initialSlides }) {
         <div className="tabs">
           <button className={`tab${tab==='coupons'?' active':''}`} onClick={() => setTab('coupons')}>🏷️ קופונים ({coupons.length})</button>
           <button className={`tab${tab==='slides'?' active':''}`} onClick={() => setTab('slides')}>🖼️ סליידר ({slides.filter(s=>s.is_active).length} פעילים)</button>
+          <button className={`tab${tab==='ticker'?' active':''}`} onClick={() => setTab('ticker')}>📢 טיקר ({announcements.filter(a=>a.is_active).length} פעילים)</button>
         </div>
 
         {/* ═══ SLIDES TAB ═══ */}
@@ -319,6 +379,52 @@ export default function AdminDashboard({ initialCoupons, initialSlides }) {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* ═══ TICKER TAB ═══ */}
+        {tab === 'ticker' && (
+          <div>
+            <div className="toolbar">
+              <div style={{flex:1,fontSize:13,color:'#7A6E68',fontWeight:600}}>הודעות מופיעות ברצועה הגוללת בראש האתר</div>
+              <button className="btn-add" onClick={openAnnAdd}>+ הוסף הודעה</button>
+            </div>
+            <div className="tbl-wrap">
+              <table className="tbl">
+                <thead>
+                  <tr>
+                    <th>סדר</th>
+                    <th style={{width:'100%'}}>טקסט ההודעה</th>
+                    <th>פעיל</th>
+                    <th>פעולות</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {announcements.length === 0 && (
+                    <tr><td colSpan={4} className="empty-row">אין הודעות עדיין</td></tr>
+                  )}
+                  {announcements.map(a => (
+                    <tr key={a.id} className={!a.is_active ? 'row-inactive' : ''}>
+                      <td style={{textAlign:'center',color:'#9E9E9E',fontSize:13}}>{a.sort_order ?? '—'}</td>
+                      <td style={{fontWeight:600,direction:'rtl'}}>{a.text}</td>
+                      <td>
+                        <button className={`toggle-btn ${a.is_active?'on':'off'}`} onClick={() => toggleAnnActive(a)}>
+                          {a.is_active ? 'פעיל' : 'כבוי'}
+                        </button>
+                      </td>
+                      <td>
+                        <div className="row-actions">
+                          <button className="btn-edit" onClick={() => openAnnEdit(a)}>✏ עריכה</button>
+                          <button className="btn-del" onClick={() => handleDeleteAnn(a.id)} disabled={deleting===a.id}>
+                            {deleting===a.id ? '...' : '🗑'}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
