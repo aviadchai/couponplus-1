@@ -189,6 +189,17 @@ export default function AdminDashboard({ initialCoupons, initialSlides, initialA
     setCoupons(prev => prev.map(c => c.id === coupon.id ? updated : c));
   }
 
+  // ── פרסום שינויים ─────────────────────────────────────────────
+  async function handleRevalidate() {
+    try {
+      const res = await fetch('/api/admin/revalidate', { method: 'POST' });
+      if (!res.ok) throw new Error('שגיאה');
+      showToast('🚀 האתר עודכן בהצלחה!');
+    } catch {
+      alert('שגיאה בעדכון האתר');
+    }
+  }
+
   // ── יציאה ────────────────────────────────────────────────────
   async function handleLogout() {
     await fetch('/api/admin/auth', { method: 'DELETE' });
@@ -329,6 +340,7 @@ export default function AdminDashboard({ initialCoupons, initialSlides, initialA
             <span className="logo-lbl">קופון פלוס — ניהול</span>
           </div>
           <div className="hdr-actions">
+            <button onClick={handleRevalidate} className="btn-publish">🚀 פרסם שינויים</button>
             <a href="/" target="_blank" className="btn-site">🌐 לאתר</a>
             <button onClick={handleLogout} className="btn-logout">יציאה</button>
           </div>
@@ -873,6 +885,8 @@ export default function AdminDashboard({ initialCoupons, initialSlides, initialA
         .btn-site { padding: 7px 14px; background: rgba(255,255,255,.1); color: #fff; border-radius: 8px; font-size: 13px; font-weight: 600; transition: background .18s; }
         .btn-site:hover { background: rgba(255,255,255,.2); }
         .btn-logout { padding: 7px 14px; background: #E8321A; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Heebo', sans-serif; }
+        .btn-publish { padding: 7px 16px; background: #2E7D32; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Heebo', sans-serif; transition: background .18s; }
+        .btn-publish:hover { background: #388E3C; }
 
         /* MAIN */
         .main { max-width: 1400px; margin: 0 auto; padding: 24px 20px 60px; }

@@ -70,3 +70,20 @@ CREATE TABLE IF NOT EXISTS slides (
 ALTER TABLE slides ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "slides_public_read" ON slides FOR SELECT USING (is_active = true);
 CREATE POLICY "slides_service_all" ON slides FOR ALL USING (auth.role() = 'service_role');
+
+-- ══════════════════════════════════════════════════════════════════
+--  טבלת הודעות טיקר
+-- ══════════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS announcements (
+  id           SERIAL       PRIMARY KEY,
+  text         TEXT         NOT NULL DEFAULT '',
+  url          TEXT         DEFAULT '',
+  is_clickable BOOLEAN      DEFAULT false,
+  is_active    BOOLEAN      DEFAULT true,
+  sort_order   INT          DEFAULT 0,
+  created_at   TIMESTAMPTZ  DEFAULT NOW()
+);
+
+ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "ann_public_read" ON announcements FOR SELECT USING (is_active = true);
+CREATE POLICY "ann_service_all" ON announcements FOR ALL USING (auth.role() = 'service_role');
