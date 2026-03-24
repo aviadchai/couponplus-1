@@ -636,6 +636,52 @@ export default function AdminDashboard({ initialCoupons, initialSlides, initialA
         </div>
       )}
 
+      {/* ═══ ANN MODAL ═══ */}
+      {(modal === 'ann-add' || modal === 'ann-edit') && (
+        <div className="overlay" onClick={e => e.target === e.currentTarget && setModal(null)}>
+          <div className="modal" style={{maxWidth:480}}>
+            <div className="modal-hdr">
+              <h2>{modal === 'ann-add' ? '➕ הוסף הודעה' : '✏ עריכת הודעה'}</h2>
+              <button className="modal-close" onClick={() => setModal(null)}>✕</button>
+            </div>
+            <form onSubmit={handleSaveAnn} className="form">
+              <div className="field">
+                <label>טקסט ההודעה <span className="req">*</span></label>
+                <input
+                  value={annForm.text}
+                  onChange={e => setAnnForm(f=>({...f,text:e.target.value}))}
+                  placeholder="לדוגמה: קופון חדש! 20% הנחה ברמי לוי →"
+                  required
+                />
+              </div>
+              <div className="form-row">
+                <div className="field" style={{flex:'0 0 120px'}}>
+                  <label>סדר תצוגה</label>
+                  <input
+                    type="number"
+                    value={annForm.sort_order}
+                    onChange={e => setAnnForm(f=>({...f,sort_order:parseInt(e.target.value)||0}))}
+                    min={0} max={99}
+                  />
+                </div>
+                <div className="field-inline" style={{flex:1,justifyContent:'flex-start',paddingTop:24}}>
+                  <label>
+                    <input type="checkbox" checked={annForm.is_active} onChange={e => setAnnForm(f=>({...f,is_active:e.target.checked}))} />
+                    <span>הודעה פעילה (מוצגת בטיקר)</span>
+                  </label>
+                </div>
+              </div>
+              <div className="form-footer">
+                <button type="button" className="btn-cancel" onClick={() => setModal(null)}>ביטול</button>
+                <button type="submit" className="btn-save" disabled={saving}>
+                  {saving ? 'שומר...' : modal === 'ann-add' ? '✅ הוסף הודעה' : '💾 שמור'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* ═══ MODAL ═══ */}
       {modal && (
         <div className="overlay" onClick={e => e.target === e.currentTarget && setModal(null)}>
@@ -943,10 +989,11 @@ export async function getServerSideProps({ req }) {
   }
 
   const sb = createAdminClient();
-  const [{ data: coupons }, { data: slides }] = await Promise.all([
+  const [{ data: coupons }, { data: slides }, { data: announcements }] = await Promise.all([
     sb.from('coupons').select('*').order('created_at', { ascending: false }),
     sb.from('slides').select('*').order('sort_order'),
+    sb.from('announcements').select('*').order('sort_order'),
   ]);
 
-  return { props: { initialCoupons: coupons || [], initialSlides: slides || [] } };
+  return { props: { initialCoupons: coupons || [], initialSlides: slides || [], initialAnnouncements: announcements || [] } };
 }
