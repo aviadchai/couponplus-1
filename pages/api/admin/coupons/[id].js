@@ -9,7 +9,8 @@ export default async function handler(req, res) {
 
   // PUT — update coupon
   if (req.method === 'PUT') {
-    const updates = { ...req.body };
+    const { images, ...rest } = req.body;
+    const updates = images?.length ? { ...rest, images } : rest;
     delete updates.id;
     delete updates.created_at;
     const { data, error } = await sb.from('coupons').update(updates).eq('id', id).select().single();

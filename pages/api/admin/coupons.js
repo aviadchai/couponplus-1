@@ -18,7 +18,8 @@ export default async function handler(req, res) {
 
   // POST — create coupon
   if (req.method === 'POST') {
-    const coupon = req.body;
+    const { images, ...rest } = req.body;
+    const coupon = images?.length ? { ...rest, images } : rest;
     if (!coupon.id || !coupon.name || !coupon.chain) {
       return res.status(400).json({ error: 'חסרים שדות חובה: id, name, chain' });
     }

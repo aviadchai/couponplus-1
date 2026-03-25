@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Skill(update-config)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(cat pages/api/admin/coupons/[id].js)"
     ]
   }
 }
