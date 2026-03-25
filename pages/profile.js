@@ -13,7 +13,10 @@ const PERSONALITIES = [
   { chains: ['יינות ביתן'], emoji: '🍷', title: 'גורמה של יינות ביתן', desc: 'לך הקנייה היא חוויה, לא רק רשימה.' },
   { chains: ['יוחננוף'],    emoji: '👑', title: 'אצילי יוחננוף', desc: 'איכות מעל הכל — אתה לא מתפשר.' },
   { chains: ['אושר עד'],    emoji: '💚', title: 'חסיד אושר עד', desc: 'חכם, מחושב, תמיד מוצא את הערך האמיתי.' },
-  { chains: ['חצי חינם'],   emoji: '✂️', title: 'מלך החיסכון', desc: 'אם יש מבצע — אתה שם. תמיד.' },
+  { chains: ['חצי חינם'],    emoji: '✂️', title: 'מלך החיסכון',          desc: 'אם יש מבצע — אתה שם. תמיד.' },
+  { chains: ['מחסני השוק'], emoji: '🏬', title: 'נאמן מחסני השוק',       desc: 'אתה יודע איפה המחיר הכי טוב — ישר למחסן, ישר לעניין.' },
+  { chains: ['Super-Pharm'], emoji: '💊', title: 'בן בית של סופר-פארם',  desc: 'בריאות, טיפוח ומה לא — הכל אצלך ממקום אחד.' },
+  { chains: ['NewPharm'],    emoji: '🌡️', title: 'חסיד NewPharm',        desc: 'מחירים טובים על בריאות — אתה יודע לחסוך.' },
 ];
 
 const CATEGORY_LABELS = {
@@ -204,6 +207,10 @@ export default function ProfilePage({ allCoupons }) {
                 <div className="saved-grid">
                   {saved.map(c => (
                     <div key={c.id} className="saved-item" onClick={() => router.push(`/coupon/${c.id}`)}>
+                      {c.image
+                        ? <img src={c.image} alt={c.name} className="saved-img" onError={e => e.target.style.display='none'} />
+                        : <div className="saved-img-fallback">{c.chain?.[0] || '?'}</div>
+                      }
                       <div className="saved-chain">{c.chain}</div>
                       <div className="saved-name">{c.name}</div>
                       <div className="saved-discount">{c.discount}</div>
@@ -285,7 +292,11 @@ export default function ProfilePage({ allCoupons }) {
         .btn-shopping { background: #1A1A2E; color: #fff; border: none; border-radius: 50px; padding: 8px 18px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Heebo', sans-serif; transition: background .18s; }
         .btn-shopping:hover { background: #E8321A; }
         .saved-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-        .saved-item { background: #F8F5F2; border: 1.5px solid #EDE8E2; border-radius: 14px; padding: 14px; cursor: pointer; transition: all .18s; }
+        .saved-item { background: #F8F5F2; border: 1.5px solid #EDE8E2; border-radius: 14px; overflow: hidden; cursor: pointer; transition: all .18s; }
+        .saved-img { width: 100%; height: 90px; object-fit: cover; display: block; }
+        .saved-img-fallback { width: 100%; height: 90px; background: #EDE8E2; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; color: #C0B8B0; }
+        .saved-chain, .saved-name, .saved-discount { padding: 0 14px; }
+        .saved-chain { padding-top: 10px; }
         .saved-item:hover { border-color: #E8321A; background: #FFF8F6; transform: translateY(-2px); }
         .saved-chain { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #E8321A; margin-bottom: 5px; }
         .saved-name { font-size: 13px; font-weight: 600; color: #1A1A2E; line-height: 1.4; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
