@@ -802,57 +802,61 @@ export default function AdminDashboard({ initialCoupons, initialSlides, initialA
                 )}
               </div>
 
-              {/* ── תמונה ── */}
+              {/* ── תמונות ── */}
               <div className="field">
-                <label>תמונה</label>
-                <div className="img-tabs">
-                  <button type="button" className={`img-tab${imgTab==='upload'?' active':''}`} onClick={()=>setImgTab('upload')}>📁 העלאת קובץ</button>
-                  <button type="button" className={`img-tab${imgTab==='url'?' active':''}`} onClick={()=>setImgTab('url')}>🔗 הדבק URL</button>
-                </div>
-                {imgTab === 'upload' ? (
-                  <div className="upload-box">
-                    <input type="file" accept="image/*" onChange={handleImageFile} id="img-file" style={{display:'none'}} />
-                    <label htmlFor="img-file" className="upload-label">
-                      {imgProgress > 0
-                        ? <span>מעלה... {imgProgress}%</span>
-                        : <span>לחץ לבחירת תמונה</span>
-                      }
-                    </label>
-                    {imgProgress > 0 && (
-                      <div className="progress-bar"><div style={{width:`${imgProgress}%`}} /></div>
-                    )}
-                  </div>
-                ) : (
-                  <input type="url" value={form.image} onChange={e => setField('image', e.target.value)} placeholder="https://res.cloudinary.com/..." />
-                )}
-                {form.image && (
-                  <div className="img-preview">
-                    <img src={form.image} alt="תצוגה מקדימה" />
-                    <button type="button" className="img-remove" onClick={() => setField('image', '')}>✕ הסר</button>
-                  </div>
-                )}
-              </div>
-
-              {/* ── תמונות נוספות ── */}
-              <div className="field">
-                <label>תמונות נוספות (גלריה)</label>
-                {(form.images || []).map((url, i) => (
-                  <div key={i} style={{display:'flex',gap:6,marginBottom:6,alignItems:'center'}}>
-                    <input
-                      type="url"
-                      value={url}
-                      onChange={e => {
-                        const arr = [...(form.images||[])];
-                        arr[i] = e.target.value;
-                        setField('images', arr);
-                      }}
-                      placeholder="https://..."
-                      style={{flex:1}}
-                    />
-                    <button type="button" className="img-remove" onClick={() => setField('images', (form.images||[]).filter((_,j)=>j!==i))}>✕</button>
-                  </div>
-                ))}
-                <button type="button" className="btn-add-img" onClick={() => setField('images', [...(form.images||[]), ''])}>+ הוסף תמונה</button>
+                <label>תמונות <span style={{fontSize:11,color:'#9E9E9E',fontWeight:400}}>(הראשונה = thumbnail בכרטיסייה)</span></label>
+                {[form.image, ...(form.images||[])].map((url, i) => {
+                  const isMain = i === 0;
+                  const fileId = `img-slot-${i}`;
+                  return (
+                    <div key={i} className="img-slot">
+                      <div className="img-slot-header">
+                        <span className="img-slot-label">{isMain ? '⭐ תמונה ראשית' : `תמונה ${i+1}`}</span>
+                        {(!isMain || url) && (
+                          <button type="button" className="img-remove" onClick={() => {
+                            const all = [form.image, ...(form.images||[])];
+                            all.splice(i, 1);
+                            setField('image', all[0] || '');
+                            setField('images', all.slice(1));
+                          }}>✕ הסר</button>
+                        )}
+                      </div>
+                      <div className="img-tabs">
+                        <button type="button" className={`img-tab${imgTab==='upload'?' active':''}`} onClick={()=>setImgTab('upload')}>📁 העלאה</button>
+                        <button type="button" className={`img-tab${imgTab==='url'?' active':''}`} onClick={()=>setImgTab('url')}>🔗 URL</button>
+                      </div>
+                      {imgTab === 'upload' ? (
+                        <div className="upload-box">
+                          <input type="file" accept="image/*" id={fileId} style={{display:'none'}} onChange={async e => {
+                            const file = e.target.files?.[0]; if (!file) return;
+                            setImgProgress(1);
+                            try {
+                              const uploadedUrl = await uploadToCloudinary(file, setImgProgress);
+                              const all = [form.image, ...(form.images||[])];
+                              all[i] = uploadedUrl;
+                              setField('image', all[0] || '');
+                              setField('images', all.slice(1));
+                              setImgProgress(0);
+                            } catch(err) { alert('שגיאת העלאה: ' + err.message); setImgProgress(0); }
+                          }} />
+                          <label htmlFor={fileId} className="upload-label">
+                            {imgProgress > 0 ? <span>מעלה... {imgProgress}%</span> : <span>לחץ לבחירת תמונה</span>}
+                          </label>
+                          {imgProgress > 0 && <div className="progress-bar"><div style={{width:`${imgProgress}%`}} /></div>}
+                        </div>
+                      ) : (
+                        <input type="url" value={url || ''} onChange={e => {
+                          const all = [form.image, ...(form.images||[])];
+                          all[i] = e.target.value;
+                          setField('image', all[0] || '');
+                          setField('images', all.slice(1));
+                        }} placeholder="https://..." />
+                      )}
+                      {url && <div className="img-preview"><img src={url} alt="" style={{width:80,height:60,objectFit:'cover'}} /></div>}
+                    </div>
+                  );
+                })}
+                <button type="button" className="btn-add-img" onClick={() => setField('images', [...(form.images||[]), ''])}>+ הוסף תמונה נוספת</button>
               </div>
 
               {/* ── תיאור ── */}
@@ -929,8 +933,11 @@ export default function AdminDashboard({ initialCoupons, initialSlides, initialA
         .filter-sel { padding: 10px 12px; border: 2px solid #E8E0D8; border-radius: 10px; font-size: 13px; font-family: 'Heebo', sans-serif; background: #fff; cursor: pointer; outline: none; }
         .btn-add { padding: 10px 20px; background: #E8321A; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 800; cursor: pointer; white-space: nowrap; font-family: 'Heebo', sans-serif; }
         .btn-add:hover { background: #FF5A3D; }
-        .btn-add-img { padding: 6px 14px; background: #F5F1ED; border: 1.5px dashed #C8C0B8; border-radius: 8px; font-size: 12px; font-weight: 700; color: #7A6E68; cursor: pointer; font-family: 'Heebo', sans-serif; }
+        .btn-add-img { padding: 6px 14px; background: #F5F1ED; border: 1.5px dashed #C8C0B8; border-radius: 8px; font-size: 12px; font-weight: 700; color: #7A6E68; cursor: pointer; font-family: 'Heebo', sans-serif; margin-top: 6px; }
         .btn-add-img:hover { border-color: #E8321A; color: #E8321A; background: #fff; }
+        .img-slot { border: 1.5px solid #E8E0D8; border-radius: 10px; padding: 12px; margin-bottom: 10px; background: #FAFAFA; }
+        .img-slot-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .img-slot-label { font-size: 12px; font-weight: 700; color: #1A1A2E; }
 
         /* TABLE */
         .tbl-wrap { background: #fff; border-radius: 16px; border: 1.5px solid #E8E0D8; overflow-x: auto; }
