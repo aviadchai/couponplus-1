@@ -21,17 +21,19 @@ const CATEGORIES = [
   { key: 'חיות מחמד',        label: '🐾 חיות מחמד' },
 ];
 
-// Supermarket chains — any coupon whose chain matches one of these shows in the super section
-const SUPER_CHAINS = [
-  { name: 'רמי לוי',    color: '#D42B0F' },
-  { name: 'שופרסל',     color: '#D42B0F' },
-  { name: 'מגה',        color: '#22A05A' },
-  { name: 'ויקטורי',    color: '#FF7A00' },
-  { name: 'יינות ביתן', color: '#7B1FA2' },
-  { name: 'חצי חינם',   color: '#D42B0F' },
-  { name: 'יוחננוף',    color: '#0288D1' },
-  { name: 'אושר עד',    color: '#388E3C' },
-];
+// Color map for known chains
+const CHAIN_COLORS = {
+  'רמי לוי':     '#D42B0F',
+  'שופרסל':      '#D42B0F',
+  'מגה':         '#22A05A',
+  'ויקטורי':     '#FF7A00',
+  'יינות ביתן':  '#7B1FA2',
+  'חצי חינם':    '#D42B0F',
+  'יוחננוף':     '#0288D1',
+  'אושר עד':     '#388E3C',
+  'מחסני השוק':  '#E65100',
+  'יוחננוף':     '#0288D1',
+};
 
 export default function Home({ coupons, slides }) {
   const router = useRouter();
@@ -53,12 +55,17 @@ export default function Home({ coupons, slides }) {
     return ms && mc;
   });
 
-  // Super section: ALL supermarket coupons (regardless of badge or expiry)
-  const superNames   = SUPER_CHAINS.map(s => s.name);
-  const superCoupons = coupons.filter(c => superNames.includes(c.chain) || c.category === 'סופרמרקט');
+  // Super section: dynamic chains from actual coupons, sorted by count
+  const superCoupons = coupons.filter(c => c.category === 'סופרמרקט' || Object.keys(CHAIN_COLORS).includes(c.chain));
   const superFiltered = activeSuper
     ? superCoupons.filter(c => c.chain === activeSuper)
     : superCoupons.slice(0, 8);
+
+  const chainCounts = {};
+  superCoupons.forEach(c => { chainCounts[c.chain] = (chainCounts[c.chain] || 0) + 1; });
+  const SUPER_CHAINS = Object.entries(chainCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name]) => ({ name, color: CHAIN_COLORS[name] || '#E8321A' }));
 
   const superLabel = activeSuper
     ? `🔥 הקופונים של ${activeSuper}`
@@ -74,10 +81,7 @@ export default function Home({ coupons, slides }) {
     return coupons.filter(c => c.category === key).length;
   }
 
-  // Which chains actually have coupons
-  const availableSupers = SUPER_CHAINS.filter(s =>
-    coupons.some(c => c.chain === s.name || c.category === 'סופרמרקט')
-  );
+  const availableSupers = SUPER_CHAINS;
 
   return (
     <Layout>
