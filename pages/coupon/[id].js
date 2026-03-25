@@ -20,7 +20,9 @@ const CHAIN_COLORS = {
 export default function CouponPage({ coupon, related }) {
   const [revealed, setRevealed] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [lightbox, setLightbox] = useState(false);
+  const [lightbox,    setLightbox]    = useState(false);
+  const [lightboxImg, setLightboxImg] = useState(null);
+  const allImages = [coupon?.image, ...((coupon?.images && typeof coupon.images === 'string' ? JSON.parse(coupon.images) : coupon?.images) || [])].filter(Boolean);
   const accent = CHAIN_COLORS[coupon?.chain] || '#E8321A';
   const expired = coupon?.expired;
 
@@ -64,10 +66,10 @@ export default function CouponPage({ coupon, related }) {
       </Head>
 
       {/* Lightbox */}
-      {lightbox && coupon.image && (
+      {lightbox && lightboxImg && (
         <div className="lightbox" onClick={() => setLightbox(false)}>
           <button className="lb-close" onClick={() => setLightbox(false)}>✕</button>
-          <img src={coupon.image} alt={coupon.name} onClick={e => e.stopPropagation()} />
+          <img src={lightboxImg} alt={coupon.name} onClick={e => e.stopPropagation()} />
         </div>
       )}
 
@@ -77,7 +79,7 @@ export default function CouponPage({ coupon, related }) {
         <div className={`top-card${expired ? ' expired' : ''}`}>
 
           {/* Image / Icon */}
-          <div className="media" onClick={() => coupon.image && setLightbox(true)}
+          <div className="media" onClick={() => coupon.image && (setLightboxImg(coupon.image), setLightbox(true))}
                style={{ cursor: coupon.image ? 'zoom-in' : 'default' }}>
             {coupon.image
               ? <img src={coupon.image} alt={coupon.name} />
@@ -177,6 +179,20 @@ export default function CouponPage({ coupon, related }) {
           </div>
         )}
 
+        {/* ── GALLERY ── */}
+        {allImages.length > 1 && (
+          <div className="gallery-section">
+            <h2 className="desc-title">🖼 תמונות</h2>
+            <div className="gallery-grid">
+              {allImages.map((img, i) => (
+                <div key={i} className="gallery-thumb" onClick={() => { setLightboxImg(img); setLightbox(true); }}>
+                  <img src={img} alt={`תמונה ${i+1}`} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* ── AD ── */}
         <div className="ad-wrap">
           <div className="ad-strip">
@@ -202,6 +218,13 @@ export default function CouponPage({ coupon, related }) {
 
       <style jsx>{`
         .wrap { max-width: 1100px; margin: 0 auto; padding: 28px 20px 40px; }
+
+        /* Gallery */
+        .gallery-section { margin-bottom: 24px; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 14px; }
+        .gallery-thumb { border-radius: 12px; overflow: hidden; aspect-ratio: 1; cursor: zoom-in; background: #F5F1EE; }
+        .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
+        .gallery-thumb:hover img { transform: scale(1.06); }
 
         /* Lightbox */
         .lightbox { position:fixed; inset:0; background:rgba(0,0,0,.92); z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px; }
