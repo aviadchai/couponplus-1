@@ -143,6 +143,9 @@ export default function CouponCard({ coupon }) {
                   לקבלת ההטבה
                 </a>
               )}
+              {!coupon.code && !coupon.url && (
+                <div className="cc-cta-view">להצגת ההטבה ←</div>
+              )}
             </>
           ) : (
             <div className="cc-cta-dead">פג תוקף</div>
@@ -222,6 +225,7 @@ export default function CouponCard({ coupon }) {
         .cc-cta-url { flex: 1; display: flex; align-items: center; justify-content: center; background: var(--accent); color: #fff; border-radius: 10px; padding: 8px 10px; font-size: 11px; font-weight: 700; text-decoration: none; transition: opacity .18s; font-family: 'Heebo', sans-serif; white-space: nowrap; }
         .cc-cta-url:hover { opacity: .85; }
         .cc-cta-dead { flex: 1; background: #D8D4D0; cursor: default; display:flex; align-items:center; justify-content:center; border-radius:10px; padding:8px; font-size:11px; font-weight:700; color:#fff; }
+        .cc-cta-view { flex: 1; background: #F5F1ED; border: 1.5px dashed #C8C0B8; border-radius: 10px; padding: 8px 10px; font-size: 11px; font-weight: 700; color: #7A6E68; display: flex; align-items: center; justify-content: center; }
       `}</style>
     </div>
   );

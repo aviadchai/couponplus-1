@@ -11,7 +11,7 @@ const BADGES = ['','חם','חדש','מוגבל','פסח','שבועות','ראש 
 const EMPTY_FORM = {
   id: '', name: '', chain: '', category: '', discount: '',
   type: 'קוד קופון', code: '', url: '', expiry: '', badge: '',
-  image: '', description: '', pdf: '', is_active: true,
+  image: '', images: [], description: '', pdf: '', is_active: true,
 };
 
 const EMPTY_SLIDE = {
@@ -833,6 +833,28 @@ export default function AdminDashboard({ initialCoupons, initialSlides, initialA
                 )}
               </div>
 
+              {/* ── תמונות נוספות ── */}
+              <div className="field">
+                <label>תמונות נוספות (גלריה)</label>
+                {(form.images || []).map((url, i) => (
+                  <div key={i} style={{display:'flex',gap:6,marginBottom:6,alignItems:'center'}}>
+                    <input
+                      type="url"
+                      value={url}
+                      onChange={e => {
+                        const arr = [...(form.images||[])];
+                        arr[i] = e.target.value;
+                        setField('images', arr);
+                      }}
+                      placeholder="https://..."
+                      style={{flex:1}}
+                    />
+                    <button type="button" className="img-remove" onClick={() => setField('images', (form.images||[]).filter((_,j)=>j!==i))}>✕</button>
+                  </div>
+                ))}
+                <button type="button" className="btn-add-img" onClick={() => setField('images', [...(form.images||[]), ''])}>+ הוסף תמונה</button>
+              </div>
+
               {/* ── תיאור ── */}
               <div className="field">
                 <label>תיאור מורחב</label>
@@ -907,6 +929,8 @@ export default function AdminDashboard({ initialCoupons, initialSlides, initialA
         .filter-sel { padding: 10px 12px; border: 2px solid #E8E0D8; border-radius: 10px; font-size: 13px; font-family: 'Heebo', sans-serif; background: #fff; cursor: pointer; outline: none; }
         .btn-add { padding: 10px 20px; background: #E8321A; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 800; cursor: pointer; white-space: nowrap; font-family: 'Heebo', sans-serif; }
         .btn-add:hover { background: #FF5A3D; }
+        .btn-add-img { padding: 6px 14px; background: #F5F1ED; border: 1.5px dashed #C8C0B8; border-radius: 8px; font-size: 12px; font-weight: 700; color: #7A6E68; cursor: pointer; font-family: 'Heebo', sans-serif; }
+        .btn-add-img:hover { border-color: #E8321A; color: #E8321A; background: #fff; }
 
         /* TABLE */
         .tbl-wrap { background: #fff; border-radius: 16px; border: 1.5px solid #E8E0D8; overflow-x: auto; }
